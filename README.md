@@ -18,3 +18,5 @@ The system provides rental businesses with a complete and flexible business mana
 - Bootstrap 5
 - Thymeleaf
 - Postgres DB
+- Hibernate
+- Maven
