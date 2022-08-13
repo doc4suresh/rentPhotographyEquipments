@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="index :: common-head" />
+
+<body>
+
+	<div th:replace="index :: common-notification"></div>
+
+	<header th:replace="index :: common-header" />
+
+	<div class="container-fluid">
+		<div class="row">
+			<nav id="sidebarMenu"
+				class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+				<div class="position-sticky pt-3">
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/}"> <i class="fas fa-home"></i> Main Menu
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/branch}"> <i class="fas fa-store"></i> Branch
+								Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column"
+						sec:authorize="hasAnyAuthority('Admin', 'Manager')">
+						<li class="nav-item"><a class="nav-link active"
+							aria-current="page" th:href="@{/employee}"> <i
+								class="fas fa-user-tie"></i> Employee Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/customer}"> <i class="fas fa-handshake"></i>
+								Customer Management
+						</a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Item</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/category"><i
+								class="fas fa-sitemap"></i> Category Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/brand"><i
+								class="fas fa-copyright"></i> Brand Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/item"><i
+								class="fas fa-camera"></i> Item Management </a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Rent</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/rent"><i
+								class="fas fa-cart-arrow-down"></i> Rent Item </a></li>
+						<li class="nav-item"><a class="nav-link" href="/return"><i
+								class="fas fa-people-carry"></i> Return Item </a></li>
+					</ul>
+
+					<div
+						sec:authorize="hasAnyAuthority('Admin', 'Manager', 'Accountant')">
+						<h6
+							class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+							<span>Report</span>
+						</h6>
+						<ul class="nav flex-column mb-2">
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByRent"><i class="fas fa-chart-line"></i>
+									Profit by Rent Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByItem"><i class="fas fa-chart-line"></i>
+									Profit by Item Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/rentReport"><i class="fas fa-file-alt"></i>
+									Rent Report </a></li>
+						</ul>
+					</div>
+
+				</div>
+			</nav>
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+				<div
+					class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+					<h2>Employee Management</h2>
+					<div class="btn-toolbar mb-2 mb-md-0">
+						<button type="button" class="btn btn-sm btn-outline-warning"
+							data-bs-toggle="modal" data-bs-target="#empAddModal">
+							<i class="fas fa-plus-circle"></i> Add Employee
+						</button>
+					</div>
+				</div>
+
+				<!-- Employee detail table -->
+				<div class="table-responsive">
+					<table class="table table-striped table-sm" id="emp-table">
+						<thead>
+							<tr>
+								<th scope="col">#</th>
+								<th scope="col">First Name</th>
+								<th scope="col">Last Name</th>
+								<th scope="col">Address</th>
+								<th scope="col">Mobile</th>
+								<th scope="col">Assigned Branch</th>
+								<th scope="col">Designation</th>
+								<th scope="col">Username</th>
+								<th scope="col">Operations</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr data-th-each="emp : ${empList}">
+								<td th:text="${emp.id}"></td>
+								<td th:text="${emp.firstName}"></td>
+								<td th:text="${emp.lastName}"></td>
+								<td th:text="${emp.address}"></td>
+								<td th:text="${emp.mobile}"></td>
+								<td th:text="${emp?.branch?.name}"></td>
+								<td th:text="${emp.designation}"></td>
+								<td th:text="${emp.username}"></td>
+								<td>
+									<button type="button"
+										class="btn-edit btn btn-sm btn-outline-warning border-0"
+										data-bs-toggle="modal"
+										th:attr="data-bs-target='#empEditModal'+${emp.id}">
+										<i class="fas fa-edit"></i>
+									</button> <!-- Edit model need to put inside of the row. otherwise employee details will null -->
+									<div th:replace="employee :: edit-modal" />
+
+									<button type="button"
+										class="btn btn-sm btn-outline-warning border-0"
+										data-bs-toggle="modal"
+										th:attr="data-bs-target='#empDeleteModal'+${emp.id}">
+										<i class="fas fa-trash-alt"></i>
+									</button> <!-- Delete model need to put inside of the row. otherwise employee details will null -->
+									<div th:replace="employee :: delete-modal" />
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<!-- Employee detail table -->
+
+
+				<!-- Employee Add Modal -->
+				<div class="modal fade" id="empAddModal" data-bs-backdrop="static"
+					data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="empAddModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="empAddModalLabel">Employee Add
+									Form</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<form class="form-floating" th:action="@{/employee/addEmployee}"
+									method="POST">
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.firstName}" id="firstName" name="firstName"
+											placeholder="First Name" pattern="[A-Z][a-z]{2,32}"
+											title="Only letters are accepted. The first letter is capitalized, and minimum 2 letters are required. Ex: Johan"
+											required> <label for="firstName">First Name *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.lastName}" id="lastName" name="lastName"
+											placeholder="Last Name" pattern="[A-Z][a-z]{2,32}"
+											title="Only letters are accepted. The first letter is capitalized, and minimum 2 letters are required. Ex: Johan"
+											required> <label for="lastName">Last Name *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.address}" id="address" name="address"
+											placeholder="Address" required> <label for="address">Address
+											*</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.mobile}" id="mobile" name="mobile"
+											placeholder="Mobile Number" pattern="0\d{9}"
+											title="10 digits are required, and the first digit must be 0."
+											required> <label for="mobile">Mobile Number *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp?.branch?.name}" id="branch" name="branch"
+											list="branchList" placeholder="Assigned Branch" required>
+										<label for="branch">Assigned Branch *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.designation}" id="designation"
+											name="designation" list="designationList"
+											placeholder="Designation" required> <label
+											for="designation">Designation *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.username}" id="username" name="username"
+											placeholder="Username" pattern="[a-z]{3,32}"
+											title="Only letters are accepted. Minimum 3 letters are required. Ex: johan"
+											required> <label for="username">Username *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="password"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.password}" id="password" name="password"
+											placeholder="Password" required onkeyup="confirmPassword()">
+										<label for="password">Password *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="password"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											id="conf-password" placeholder="Password" required
+											onkeyup="confirmPassword()"> <label
+											for="conf-password">Confirm Password <i
+											class="fas fa-check text-success" id="pass-correct"></i><i
+											class="fas fa-times text-danger" id="pass-wrong"></i></label>
+									</div>
+									<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+										<button class="btn btn-secondary" type="reset">Clear</button>
+										<button class="btn btn-warning" id="add" type="submit">Add</button>
+									</div>
+
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Employee Add Modal End-->
+
+
+				<!-- Employee Edit Modal -->
+				<div th:fragment="edit-modal" class="modal fade"
+					th:id="'empEditModal'+${emp.id}" data-bs-backdrop="static"
+					data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="empEditModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="empEditModalLabel">Employee
+									Edit Form</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<form class="form-floating"
+									th:action="@{/employee/editEmployee}" method="POST"
+									th:object="${empList}">
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.id}" id="id" name="id"
+											placeholder="Employee ID" required readonly> <label
+											for="id">Employee ID *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.firstName}" id="firstName" name="firstName"
+											placeholder="First Name" pattern="[A-Z][a-z]{2,32}"
+											title="Only letters are accepted. The first letter is capitalized, and minimum 2 letters are required. Ex: Johan"
+											required> <label for="firstName">First Name *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.lastName}" id="lastName" name="lastName"
+											placeholder="Last Name" pattern="[A-Z][a-z]{2,32}"
+											title="Only letters are accepted. The first letter is capitalized, and minimum 2 letters are required. Ex: Johan"
+											required> <label for="lastName">Last Name *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.address}" id="address" name="address"
+											placeholder="Address" required> <label for="address">Address
+											*</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.mobile}" id="mobile" name="mobile"
+											placeholder="Mobile Number" pattern="0\d{9}"
+											title="10 digits are required, and the first digit must be 0."
+											required> <label for="mobile">Mobile Number *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<select
+											class="form-select border-top-0 border-start-0 border-end-0"
+											id="branch" name="branch" aria-label="Assigned Branch"
+											required>
+											<option th:each="branch : ${branchList}"
+												th:value="${branch.name}" th:text="${branch.name}"
+												th:selected="${emp.branch != null && emp.branch.name == branch.name}">
+										</select> <label for="branch">Assigned Branch *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.designation}" id="designation"
+											name="designation" list="designationList"
+											placeholder="Designation" required> <label
+											for="designation">Designation *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${emp.username}" id="username" name="username"
+											placeholder="Username" pattern="[a-z]{3,32}"
+											title="Only letters are accepted. Minimum 3 letters are required. Ex: johan"
+											required> <label for="username">Username *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="password"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											id="password-edit" name="password" placeholder="Password"
+											onkeyup="confirmEditPassword()"> <label
+											for="password">Password</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="password"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											id="conf-password-edit" placeholder="Password"
+											onkeyup="confirmEditPassword()"> <label
+											for="conf-password">Confirm Password <i
+											class="fas fa-check text-success" id="pass-correct-edit"></i><i
+											class="fas fa-times text-danger" id="pass-wrong-edit"></i></label>
+									</div>
+									<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+										<button class="btn btn-secondary" type="reset">Clear</button>
+										<button class="btn btn-warning" id="edit" type="submit">Edit</button>
+									</div>
+
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Employee Edit Modal End-->
+
+
+				<!-- Employee Delete Modal -->
+				<div th:fragment="delete-modal" class="modal fade"
+					th:id="'empDeleteModal'+${emp.id}" data-bs-backdrop="static"
+					data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="empDeleteModalLabel" aria-hidden="true">
+					<div class="modal-dialog  modal-dialog-centered modal-sm">
+						<div class="modal-content">
+							<div class="modal-header bg-danger">
+								<Strong class="modal-title" id="empDeleteModalLabel"> <i
+									class="fas fa-trash-alt"></i> Delete Employee
+								</Strong>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<p>
+									Are you sure you want to delete the employee : <b><span
+										th:text="${emp.firstName +' '+emp.lastName}"></span></b>
+								</p>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary"
+									data-bs-dismiss="modal">Cancel</button>
+								<a type="button" class="btn btn-warning"
+									th:href="@{/employee/deleteEmployee(id=${emp.id})}">Delete</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Employee Delete Modal End-->
+
+
+				<!-- Designation List -->
+				<datalist id="designationList">
+					<option value="Manager">
+					<option value="Accountant">
+					<option value="Sales Person">
+					<option value="Cashier">
+				</datalist>
+
+				<!-- Branch List -->
+				<datalist id="branchList">
+					<option th:each="branch: ${branchList}" th:value="${branch.name}">
+				</datalist>
+
+			</main>
+		</div>
+	</div>
+
+	<div th:replace="index :: common-scripts" />
+
+	<script>
+		$(document).ready(function() {
+			var table = $('#emp-table').DataTable();
+		});
+	</script>
+
+	<!-- Password confirmation check -->
+	<script type="text/javascript">
+		function confirmPassword() {
+			var passInput = document.getElementById("password");
+			var confInput = document.getElementById("conf-password");
+
+			if (passInput.value == confInput.value) {
+				document.getElementById("add").disabled = false;
+				document.getElementById("pass-correct").style.display = "inline";
+				document.getElementById("pass-wrong").style.display = "none";
+			} else {
+				document.getElementById("add").disabled = true;
+				document.getElementById("pass-correct").style.display = "none";
+				document.getElementById("pass-wrong").style.display = "inline";
+			}
+		}
+	</script>
+
+	<!-- Password Edit confirmation check -->
+	<script type="text/javascript">
+		function confirmEditPassword() {
+			var passInput = document.getElementById("password-edit");
+			var confInput = document.getElementById("conf-password-edit");
+
+			if (passInput.value == confInput.value) {
+				document.getElementById("edit").disabled = false;
+				document.getElementById("pass-correct-edit").style.display = "inline";
+				document.getElementById("pass-wrong-edit").style.display = "none";
+			} else {
+				document.getElementById("edit").disabled = true;
+				document.getElementById("pass-correct-edit").style.display = "none";
+				document.getElementById("pass-wrong-edit").style.display = "inline";
+			}
+		}
+	</script>
+</body>

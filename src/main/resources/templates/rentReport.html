@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="index :: common-head" />
+
+<body>
+
+	<div th:replace="index :: common-notification"></div>
+
+	<header th:replace="index :: common-header" />
+
+	<div class="container-fluid">
+		<div class="row">
+			<nav id="sidebarMenu"
+				class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+				<div class="position-sticky pt-3">
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/}"> <i class="fas fa-home"></i> Main Menu
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/branch}"> <i class="fas fa-store"></i> Branch
+								Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column"
+						sec:authorize="hasAnyAuthority('Admin', 'Manager')">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/employee}"> <i class="fas fa-user-tie"></i>
+								Employee Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/customer}"> <i class="fas fa-handshake"></i>
+								Customer Management
+						</a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Item</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/category"><i
+								class="fas fa-sitemap"></i> Category Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/brand"><i
+								class="fas fa-copyright"></i> Brand Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/item"><i
+								class="fas fa-camera"></i> Item Management </a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Rent</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/rent"><i
+								class="fas fa-cart-arrow-down"></i> Rent Item </a></li>
+						<li class="nav-item"><a class="nav-link" href="/return"><i
+								class="fas fa-people-carry"></i> Return Item </a></li>
+					</ul>
+
+					<div
+						sec:authorize="hasAnyAuthority('Admin', 'Manager', 'Accountant')">
+						<h6
+							class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+							<span>Report</span>
+						</h6>
+						<ul class="nav flex-column mb-2">
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByRent"><i class="fas fa-chart-line"></i>
+									Profit by Rent Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByItem"><i class="fas fa-chart-line"></i>
+									Profit by Item Report </a></li>
+							<li class="nav-item"><a class="nav-link active"
+								href="/report/rentReport"><i class="fas fa-file-alt"></i>
+									Rent Report </a></li>
+						</ul>
+					</div>
+
+				</div>
+			</nav>
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+				<div
+					class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+					<h2>Rent Detail Report</h2>
+				</div>
+
+				<!-- rent filter -->
+				<form class="form-floating mb-3"
+					th:action="@{/report/filterRentReport}" method="POST">
+					<div class="row g-2">
+						<div class="col-md">
+							<div class="form-floating">
+								<select
+									class="form-select border-top-0 border-start-0 border-end-0"
+									id="username" name="username" aria-label="username" required>
+									<option value="All">All</option>
+									<option th:each="name : ${filter.usernameList}"
+										th:value="${name}" th:text="${name}"
+										th:selected="${name == filter.username}">
+								</select> <label for="username">Employee Name</label>
+							</div>
+						</div>
+						<div class="col-md">
+							<div class="form-floating">
+								<select
+									class="form-select border-top-0 border-start-0 border-end-0"
+									id="cusName" name="cusName" aria-label="cusName" required>
+									<option value="All">All</option>
+									<option th:each="name : ${filter.cusNameList}"
+										th:value="${name}" th:text="${name}"
+										th:selected="${name == filter.cusName}">
+								</select> <label for="cusName">Customer Name</label>
+							</div>
+						</div>
+						<div class="col-md">
+							<label for="startDate" class="col-form-label col-form-label-sm">Start
+								Date</label> <input type="date"
+								class="form-control form-control-sm border-top-0 border-start-0 border-end-0"
+								id="startDate" name="startDate" th:value="${filter.startDate}"
+								required />
+						</div>
+						<div class="col-md">
+							<label for="endDate" class="col-form-label col-form-label-sm">End
+								Date</label> <input type="date"
+								class="form-control form-control-sm border-top-0 border-start-0 border-end-0"
+								id="endDate" name="endDate" th:value="${filter.endDate}"
+								required />
+						</div>
+						<div class="col-md">
+							<div class="form-floating">
+								<select
+									class="form-select border-top-0 border-start-0 border-end-0"
+									id="status" name="status" aria-label="status" required>
+									<option value="All">All</option>
+									<option th:each="s : ${filter.statusList}" th:value="${s}"
+										th:text="${s}" th:selected="${s == filter.status}">
+								</select> <label for="status">Status</label>
+							</div>
+						</div>
+						<div class="col-md-1">
+							<button type="submit"
+								class="btn btn-outline-warning btn-sm w-100 mt-4">Generate</button>
+						</div>
+					</div>
+				</form>
+
+				<!-- Rent Details accordion -->
+				<div class="accordion" id="accordionExample">
+					<div class="accordion-item">
+						<p class="accordion-header" id="heading">
+							<button class="accordion-button bg-primary">
+								<div class="row w-100">
+									<div class="col-md-3">
+										<span class="text-light fw-bold">Employee Name</span>
+									</div>
+									<div class="col-md-3">
+										<span class="text-light fw-bold">Customer Name</span>
+									</div>
+									<div class="col-md-3">
+										<span class="text-light fw-bold">Dates</span>
+									</div>
+									<div class="col-md-3">
+										<span class="text-light fw-bold">Status</span>
+									</div>
+								</div>
+							</button>
+						</p>
+					</div>
+
+					<div class="accordion-item" th:each="rent : ${rentList}">
+						<p class="accordion-header" id="headingOne">
+							<button class="accordion-button bg-light" type="button"
+								data-bs-toggle="collapse"
+								th:attr="data-bs-target='#accordion_'+${rent.id}"
+								aria-expanded="true" aria-controls="collapseOne">
+								<div class="row w-100">
+									<div class="col-md-3">
+										<span class="text-dark"
+											th:text="${rent.employee.firstName + ' ' + rent.employee.lastName}"></span>
+									</div>
+									<div class="col-md-3">
+										<span class="text-dark"
+											th:text="${rent.customer.firstName + ' ' + rent.customer.lastName}"></span>
+									</div>
+									<div class="col-md-3">
+										<span class="text-dark"
+											th:text="${rent.startDate + ' To ' + rent.endDate}"></span>
+									</div>
+									<div class="col-md-3">
+										<span class="text-dark" th:text="${rent.status}"></span>
+									</div>
+								</div>
+							</button>
+						</p>
+						<div th:id="'accordion_'+${rent.id}"
+							class="accordion-collapse collapse" aria-labelledby="headingOne"
+							data-bs-parent="#accordionExample">
+							<div class="accordion-body">
+
+								<div class="card bg-light border-0 mt-3"
+									data-th-each="cart : ${rent.rentCartItemList}">
+									<div class="row mt-3 mb-3">
+										<div class="col-2">
+											<img th:src="${cart.item.itemImg}" alt="..."
+												class="mx-auto d-block rounded-circle" style="width: 100px;">
+										</div>
+										<div class="col-3">
+											<p class="fw-bolder"
+												th:text="${cart.item.brand.brandName + ' ' + cart.item.itemName}"></p>
+											<p class="text-muted" th:text="${cart?.item?.itemCode}"></p>
+										</div>
+										<div class="col-7">
+											<div class="row">
+												<div class="col-3">
+													<div class="row">
+														<div class="col-6">
+															<p class="text-muted">Qty:</p>
+															<p class="fw-bolder" th:text="${cart.qty}"></p>
+														</div>
+														<div class="col-6">
+															<p class="text-muted">Days:</p>
+															<p class="fw-bolder" th:text="${cart.days}"></p>
+														</div>
+													</div>
+												</div>
+												<div class="col-3 text-end">
+													<p class="text-muted">Rent Price</p>
+													<small class="text-muted">Q: <span
+														th:text="${cart.qty}"></span> * D: <span
+														th:text="${cart.days}"></span> * Rs.<span
+														th:text="${cart.days > 4 ? cart.item.rentPrice5Days : (cart.days > 2 ? cart.item.rentPrice3To4Days : cart.item.rentPrice1To2Days)}"></span>
+													</small>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(cart?.subRentTotal, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+												<div class="col-3 text-end">
+													<p class="text-muted">Deposit</p>
+													<small class="text-muted">Q: <span
+														th:text="${cart.qty}"></span> * D: <span
+														th:text="${cart.days}"></span> * Rs.<span
+														th:text="${cart.days > 4 ? cart.item.deposit5Days : (cart.days > 2 ? cart.item.deposit3To4Days : cart.item.deposit1To2Days)}"></span>
+													</small>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(cart?.subDepositTotal, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+												<div class="col-3 text-end pe-5">
+													<p class="text-muted">Sub Total</p>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(cart?.subTotal, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="card bg-light border-0 mt-3 mb-3">
+									<div class="row mt-3 mb-3">
+										<div class="col-5">
+											<div class="row">
+												<div class="col-4 align-self-end">
+													<p class="fw-bolder ms-3">SUMMARY</p>
+												</div>
+												<div class="col-4 text-end">
+													<p class="text-muted">Returned Date</p>
+													<p class="fw-bolder" th:text="${rent?.returnedDate}"></p>
+												</div>
+												<div class="col-4 text-end">
+													<p class="text-muted">Late Chargers</p>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(rent?.lateChargers, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+											</div>
+										</div>
+										<div class="col-7">
+											<div class="row">
+												<div class="col-3 text-end">
+													<p class="text-muted">Damage Chargers</p>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(rent?.damageFine, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+												<div class="col-3 text-end">
+													<p class="text-muted">Rent Total</p>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(rent?.grandRentTotal, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+												<div class="col-3 text-end">
+													<p class="text-muted">Deposit Total</p>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(rent?.grandDepositTotal, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+												<div class="col-3 text-end pe-5">
+													<p class="text-muted">Total</p>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(rent?.grandTotal, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</main>
+		</div>
+	</div>
+
+	<div th:replace="index :: common-scripts" />
+</body>

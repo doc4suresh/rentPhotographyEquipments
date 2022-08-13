@@ -1,0 +1,3516 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="index :: common-head" />
+
+<body>
+
+	<!-- Item image upload with preview style -->
+	<style>
+.imagePreview {
+	width: 100%;
+	height: 180px;
+	background-position: center center;
+	background-size: cover;
+	display: inline-block;
+}
+
+.imgUp {
+	margin-bottom: 15px;
+	width: 200px;
+}
+</style>
+
+
+
+	<div th:replace="index :: common-notification"></div>
+
+	<header th:replace="index :: common-header" />
+
+	<div class="container-fluid">
+		<div class="row">
+			<nav id="sidebarMenu"
+				class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+				<div class="position-sticky pt-3">
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/}"> <i class="fas fa-home"></i> Main Menu
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/branch}"> <i class="fas fa-store"></i> Branch
+								Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column"
+						sec:authorize="hasAnyAuthority('Admin', 'Manager')">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/employee}"> <i class="fas fa-user-tie"></i>
+								Employee Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/customer}"> <i class="fas fa-handshake"></i>
+								Customer Management
+						</a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Item</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/category"><i
+								class="fas fa-sitemap"></i> Category Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/brand"><i
+								class="fas fa-copyright"></i> Brand Management </a></li>
+						<li class="nav-item"><a class="nav-link active" href="/item"><i
+								class="fas fa-camera"></i> Item Management </a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Rent</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/rent"><i
+								class="fas fa-cart-arrow-down"></i> Rent Item </a></li>
+						<li class="nav-item"><a class="nav-link" href="/return"><i
+								class="fas fa-people-carry"></i> Return Item </a></li>
+					</ul>
+
+					<div
+						sec:authorize="hasAnyAuthority('Admin', 'Manager', 'Accountant')">
+						<h6
+							class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+							<span>Report</span>
+						</h6>
+						<ul class="nav flex-column mb-2">
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByRent"><i class="fas fa-chart-line"></i>
+									Profit by Rent Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByItem"><i class="fas fa-chart-line"></i>
+									Profit by Item Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/rentReport"><i class="fas fa-file-alt"></i>
+									Rent Report </a></li>
+						</ul>
+					</div>
+				</div>
+			</nav>
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+				<div
+					class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+					<h2>Item Management</h2>
+					<div class="btn-toolbar mb-2 mb-md-0">
+						<button type="button" class="btn btn-sm btn-outline-warning"
+							data-bs-toggle="modal" data-bs-target="#itemAddModal">
+							<i class="fas fa-plus-circle"></i> Add Item
+						</button>
+					</div>
+				</div>
+
+				<!-- Item detail table -->
+				<table class="table table-striped table-sm" id="item-table">
+					<thead>
+						<tr>
+							<th scope="col">#</th>
+							<th scope="col">Item Code</th>
+							<th scope="col">Item Name</th>
+							<th scope="col">Qty</th>
+							<th scope="col">Available Qty</th>
+							<th scope="col"></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr data-th-each="item : ${itemList}">
+							<td th:text="${item.id}"></td>
+							<td><img th:src="${item.itemImg}" class="rounded-circle"
+								style="width: 45px;" alt="..."><span class="p-3"
+								th:text="${item.itemCode}"></span></td>
+							<td th:text="${item.itemName}"></td>
+							<td th:text="${item.qty}"></td>
+							<td th:text="${item.available}"></td>
+							<td>
+								<button type="button"
+									class="btn-edit btn btn-sm btn-outline-warning border-0"
+									data-bs-toggle="modal"
+									th:attr="data-bs-target='#itemDetailModal'+${item.id}">
+									<i class="fas fa-binoculars"></i>
+								</button> <!-- Item Details model need to put inside of the row. otherwise Item details will null -->
+								<div th:replace="itemDetails :: item" />
+
+								<button type="button"
+									class="btn-edit btn btn-sm btn-outline-warning border-0"
+									data-bs-toggle="modal"
+									th:attr="data-bs-target='#itemEditModal'+${item.id}">
+									<i class="fas fa-edit"></i>
+								</button> <!-- Edit model need to put inside of the row. otherwise item details will null -->
+								<div th:replace="item :: edit-modal" />
+
+								<button type="button"
+									class="btn btn-sm btn-outline-warning border-0"
+									data-bs-toggle="modal"
+									th:attr="data-bs-target='#itemDeleteModal'+${item.id}">
+									<i class="fas fa-trash-alt"></i>
+								</button> <!-- Delete model need to put inside of the row. otherwise item details will null -->
+								<div th:replace="item :: delete-modal" />
+
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<!-- Item detail table end -->
+
+
+				<!-- Item Add Modal -->
+				<div class="modal fade" id="itemAddModal" data-bs-backdrop="static"
+					data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="itemAddModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-lg">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="itemAddModalLabel">Item Add
+									Form</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<form class="form-floating" th:action="@{/item/addItem}"
+									method="POST" enctype="multipart/form-data">
+
+									<div class="row g-2">
+										<div class="col-md">
+											<div class="form-floating mb-3">
+												<input type="text"
+													class="form-control border-top-0 border-start-0 border-end-0"
+													th:value="${item?.category?.catName}" id="category"
+													name="category" list="catList" placeholder="Category"
+													required> <label for="category">Category *</label>
+											</div>
+										</div>
+
+										<div class="col-md">
+											<div class="form-floating  mb-3">
+												<input type="text"
+													class="form-control border-top-0 border-start-0 border-end-0"
+													th:value="${item?.brand?.brandName}" id="brand"
+													name="brand" list="brandList" placeholder="Brand" required>
+												<label for="brand">Brand *</label>
+											</div>
+										</div>
+									</div>
+
+									<div class="row g-2">
+										<div class="col-md">
+											<div class="form-floating mb-3">
+												<input type="text"
+													class="form-control border-top-0 border-start-0 border-end-0"
+													id="itemCode" name="itemCode" placeholder="Item Code"
+													th:value="${item.itemCode}" required> <label
+													for="itemCode">Item Code *</label>
+											</div>
+										</div>
+										<div class="col-md">
+											<div class="form-floating mb-3">
+												<input type="text"
+													class="form-control border-top-0 border-start-0 border-end-0"
+													id="itemName" name="itemName" placeholder="Item Name"
+													th:value="${item.itemName}" required> <label
+													for="itemName">Item Name *</label>
+											</div>
+										</div>
+									</div>
+
+									<div class="row g-2">
+										<div class="col-md">
+											<div class="form-floating mb-3">
+												<input type="number"
+													class="form-control border-top-0 border-start-0 border-end-0"
+													id="qty" name="qty" placeholder="Quantity" min="1"
+													th:value="${item.qty}" required> <label for="qty">Quantity
+													*</label>
+											</div>
+										</div>
+										<div class="col-md"></div>
+									</div>
+
+									<table class="w-100">
+										<thead>
+											<tr>
+												<th scope="col">Days</th>
+												<th scope="col">Price for a day</th>
+												<th scope="col">Deposit for a day</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>1 - 2 Days:</td>
+												<td>
+													<div class="form-floating mb-3">
+														<input type="text"
+															class="form-control border-top-0 border-start-0 border-end-0"
+															id="rentPrice1To2Days" name="rentPrice1To2Days"
+															placeholder="Rent Price"
+															th:value="${item.rentPrice1To2Days}" required> <label
+															for="rentPrice1To2Days">Rent Price *</label>
+													</div>
+												</td>
+												<td>
+													<div class="form-floating mb-3">
+														<input type="text"
+															class="form-control border-top-0 border-start-0 border-end-0"
+															id="deposit1To2Days" name="deposit1To2Days"
+															placeholder="Deposit" th:value="${item.deposit1To2Days}"
+															required> <label for="deposit1To2Days">Deposit
+															*</label>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td>3 - 4 Days:</td>
+												<td>
+													<div class="form-floating mb-3">
+														<input type="text"
+															class="form-control border-top-0 border-start-0 border-end-0"
+															id="rentPrice3To4Days" name="rentPrice3To4Days"
+															placeholder="Rent Price"
+															th:value="${item.rentPrice3To4Days}" required> <label
+															for="rentPrice3To4Days">Rent Price *</label>
+													</div>
+												</td>
+												<td>
+													<div class="form-floating mb-3">
+														<input type="text"
+															class="form-control border-top-0 border-start-0 border-end-0"
+															id="deposit3To4Days" name="deposit3To4Days"
+															placeholder="Deposit" th:value="${item.deposit3To4Days}"
+															required> <label for="deposit3To4Days">Deposit
+															*</label>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td>More than 4 Days:</td>
+												<td>
+													<div class="form-floating mb-3">
+														<input type="text"
+															class="form-control border-top-0 border-start-0 border-end-0"
+															id="rentPrice5Days" name="rentPrice5Days"
+															placeholder="Rent Price"
+															th:value="${item.rentPrice5Days}" required> <label
+															for="rentPrice5Days">Rent Price *</label>
+													</div>
+												</td>
+												<td>
+													<div class="form-floating mb-3">
+														<input type="text"
+															class="form-control border-top-0 border-start-0 border-end-0"
+															id="deposit5Days" name="deposit5Days"
+															placeholder="Deposit" th:value="${item.deposit5Days}"
+															required> <label for="deposit5Days">Deposit
+															*</label>
+													</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+
+									<div class="row g-2">
+										<div class="col-md">
+											<div class="form-floating mb-3">Item Image *</div>
+											<div class="col-sm-2 imgUp">
+												<div class="imagePreview"
+													style="background-image: url(/assert/NoImage.jpg)"></div>
+												<label class="btn btn-warning btn-sm d-grid"> Upload
+													<input type="file" accept=".png, .jpg, .jpeg"
+													class="uploadFile img" name="itemImg"
+													style="width: 0px; height: 0px; overflow: hidden;" required>
+												</label>
+											</div>
+										</div>
+										<div class="col-md-8">
+											<div class="form-floating mb-3">Key Features</div>
+											<div class="form-floating mb-3">
+												<textarea class="form-control" id="keyFeatures"
+													name="keyFeatures" th:text=${item.keyFeatures} rows="3"></textarea>
+											</div>
+										</div>
+									</div>
+
+									<div class="form-floating mb-3">Overview</div>
+									<div class="form-floating mb-3">
+										<textarea class="form-control" id="overview" name="overview"
+											th:text=${item.overview} rows="3"></textarea>
+									</div>
+
+									<div class="form-floating mb-3">
+										Specs <small>(Optional)</small>
+									</div>
+									<div class="mb-3 card">
+										<div class="accordion accordion-flush" id="accordionSpecs">
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading1">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#item3dObjectDetection"
+														aria-expanded="false"
+														aria-controls="item3dObjectDetection">3D Object
+														Detection</button>
+												</h2>
+												<div id="item3dObjectDetection"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading1"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Operating Range" id="operatingRange"
+																		name="operatingRange"
+																		th:value="${item?.item3dObjectDetection?.operatingRange}">
+																	<label for="operatingRange">Operating Range</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading2">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#itemBattery"
+														aria-expanded="false" aria-controls="itemBattery">Battery</button>
+												</h2>
+												<div id="itemBattery" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading2"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Chemistry" id="chemistry"
+																		name="chemistry"
+																		th:value="${item?.itemBattery?.chemistry}"> <label
+																		for="chemistry">Chemistry</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Capacity" id="capacity" name="capacity"
+																		th:value="${item?.itemBattery?.capacity}"> <label
+																		for="capacity">Capacity</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Configuration" id="configuration"
+																		name="configuration"
+																		th:value="${item?.itemBattery?.configuration}">
+																	<label for="configuration">Configuration</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Operating Temperature"
+																		id="batteryOperatingTemperature"
+																		name="batteryOperatingTemperature"
+																		th:value="${item?.itemBattery?.batteryOperatingTemperature}">
+																	<label for="batteryOperatingTemperature">Operating
+																		Temperature</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading3">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemCameraSpecs" aria-expanded="false"
+														aria-controls="itemCameraSpecs">Camera</button>
+												</h2>
+												<div id="itemCameraSpecs"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading3"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Sensor" id="sensor" name="sensor"
+																		th:value="${item?.itemCameraSpecs?.sensor}"> <label
+																		for="sensor">Sensor</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Effective Pixels" id="effectivePixels"
+																		name="effectivePixels"
+																		th:value="${item?.itemCameraSpecs?.effectivePixels}">
+																	<label for="effectivePixels">Effective Pixels</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Lens Field of View" id="lensFieldofView"
+																		name="lensFieldofView"
+																		th:value="${item?.itemCameraSpecs?.lensFieldofView}">
+																	<label for="lensFieldofView">Lens Field of View</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Aperture" id="aperture" name="aperture"
+																		th:value="${item?.itemCameraSpecs?.aperture}">
+																	<label for="aperture">Aperture</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Minimum Focusing Distance"
+																		id="minimumFocusingDistance"
+																		name="minimumFocusingDistance"
+																		th:value="${item?.itemCameraSpecs?.minimumFocusingDistance}">
+																	<label for="minimumFocusingDistance">Minimum
+																		Focusing Distance</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Photo ISO Range" id="photoISORange"
+																		name="photoISORange"
+																		th:value="${item?.itemCameraSpecs?.photoISORange}">
+																	<label for="photoISORange">Photo ISO Range</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Electronic Shutter Speed"
+																		id="electronicShutterSpeed"
+																		name="electronicShutterSpeed"
+																		th:value="${item?.itemCameraSpecs?.electronicShutterSpeed}">
+																	<label for="electronicShutterSpeed">Electronic
+																		Shutter Speed</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Photo Format" id="photoFormat"
+																		name="photoFormat"
+																		th:value="${item?.itemCameraSpecs?.photoFormat}">
+																	<label for="photoFormat">Photo Format</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Video Format" id="videoFormat"
+																		name="videoFormat"
+																		th:value="${item?.itemCameraSpecs?.videoFormat}">
+																	<label for="videoFormat">Video Format</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading4">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#itemCharger"
+														aria-expanded="false" aria-controls="itemCharger">Charger</button>
+												</h2>
+												<div id="itemCharger" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading4"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="AC Input Power" id="acInputPower"
+																		name="acInputPower"
+																		th:value="${item?.itemCharger?.acInputPower}">
+																	<label for="acInputPower">AC Input Power</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Output Voltage" id="outputVoltage"
+																		name="outputVoltage"
+																		th:value="${item?.itemCharger?.outputVoltage}">
+																	<label for="outputVoltage">Output Voltage</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Power Rating" id="powerRating"
+																		name="powerRating"
+																		th:value="${item?.itemCharger?.powerRating}">
+																	<label for="powerRating">Power Rating</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading6">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemExposureControl"
+														aria-expanded="false" aria-controls="itemExposureControl">Exposure
+														Control</button>
+												</h2>
+												<div id="itemExposureControl"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading6"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Exposure Control" id="exposureControl"
+																		name="exposureControl"
+																		th:value="${item?.itemExposureControl?.exposureControl}">
+																	<label for="exposureControl">Exposure Control</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Flash Modes" id="exposureFlashModes"
+																		name="exposureFlashModes"
+																		th:value="${item?.itemExposureControl?.exposureFlashModes}">
+																	<label for="exposureFlashModes">Flash Modes</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="ISO Sensitivity" id="isoSensitivity"
+																		name="isoSensitivity"
+																		th:value="${item?.itemExposureControl?.isoSensitivity}">
+																	<label for="isoSensitivity">ISO Sensitivity</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Metering Method" id="meteringMethod"
+																		name="meteringMethod"
+																		th:value="${item?.itemExposureControl?.meteringMethod}">
+																	<label for="meteringMethod">Metering Method</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Exposure Modes" id="exposureModes"
+																		name="exposureModes"
+																		th:value="${item?.itemExposureControl?.exposureModes}">
+																	<label for="exposureModes">Exposure Modes</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Exposure Compensation"
+																		id="exposureCompensation" name="exposureCompensation"
+																		th:value="${item?.itemExposureControl?.exposureCompensation}">
+																	<label for="exposureCompensation">Exposure
+																		Compensation</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Metering Range" id="meteringRange"
+																		name="meteringRange"
+																		th:value="${item?.itemExposureControl?.meteringRange}">
+																	<label for="meteringRange">Metering Range</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="White Balance" id="whiteBalance"
+																		name="whiteBalance"
+																		th:value="${item?.itemExposureControl?.whiteBalance}">
+																	<label for="whiteBalance">White Balance</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Self Timer" id="selfTimer"
+																		name="selfTimer"
+																		th:value="${item?.itemExposureControl?.selfTimer}">
+																	<label for="selfTimer">Self Timer</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Shutter Speed" id="shutterSpeed"
+																		name="shutterSpeed"
+																		th:value="${item?.itemExposureControl?.shutterSpeed}">
+																	<label for="shutterSpeed">Shutter Speed</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Continuous Shooting"
+																		id="continuousShooting" name="continuousShooting"
+																		th:value="${item?.itemExposureControl?.continuousShooting}">
+																	<label for="continuousShooting">Continuous
+																		Shooting</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading7">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#itemFlash"
+														aria-expanded="false" aria-controls="itemFlash">Flash</button>
+												</h2>
+												<div id="itemFlash" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading7"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Built In Flash" id="builtInFlash"
+																		name="builtInFlash"
+																		th:value="${item?.itemFlash?.builtInFlash}"> <label
+																		for="builtInFlash">Built In Flash</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Dedicated Flash System"
+																		id="dedicatedFlashSystem" name="dedicatedFlashSystem"
+																		th:value="${item?.itemFlash?.dedicatedFlashSystem}">
+																	<label for="dedicatedFlashSystem">Dedicated
+																		Flash System</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="External Flash Connection"
+																		id="externalFlashConnection"
+																		name="externalFlashConnection"
+																		th:value="${item?.itemFlash?.externalFlashConnection}">
+																	<label for="externalFlashConnection">External
+																		Flash Connection</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Flash Modes" id="flashModes"
+																		name="flashModes"
+																		th:value="${item?.itemFlash?.flashModes}"> <label
+																		for="flashModes">Flash Modes</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Sync Speed" id="maximumSyncSpeed"
+																		name="maximumSyncSpeed"
+																		th:value="${item?.itemFlash?.maximumSyncSpeed}">
+																	<label for="maximumSyncSpeed">Maximum Sync
+																		Speed</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Flash Compensation"
+																		id="flashCompensation" name="flashCompensation"
+																		th:value="${item?.itemFlash?.flashCompensation}">
+																	<label for="flashCompensation">Flash
+																		Compensation</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading8">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemFlightControlSystem"
+														aria-expanded="false"
+														aria-controls="itemFlightControlSystem">Flight
+														Control System</button>
+												</h2>
+												<div id="itemFlightControlSystem"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading8"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="col-md">
+															<div class="form-floating mb-3">
+																<input type="text"
+																	class="form-control border-top-0 border-start-0 border-end-0"
+																	placeholder="GNSS Support" id="gnssSupport"
+																	name="gnssSupport"
+																	th:value="${item?.itemFlightControlSystem?.gnssSupport}">
+																<label for="gnssSupport">GNSS Support</label>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading9">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#itemFocus"
+														aria-expanded="false" aria-controls="itemFocus">Focus</button>
+												</h2>
+												<div id="itemFocus" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading9"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Focus Type" id="focusType"
+																		name="focusType"
+																		th:value="${item?.itemFocus?.focusType}"> <label
+																		for="focusType">Focus Type</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Focus Mode" id="focusMode"
+																		name="focusMode"
+																		th:value="${item?.itemFocus?.focusMode}"> <label
+																		for="focusMode">Focus Mode</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Auto Focus Points" id="autofocusPoints"
+																		name="autofocusPoints"
+																		th:value="${item?.itemFocus?.autofocusPoints}">
+																	<label for="autofocusPoints">Auto Focus Points</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Auto Focus Sensitivity"
+																		id="autofocusSensitivity" name="autofocusSensitivity"
+																		th:value="${item?.itemFocus?.autofocusSensitivity}">
+																	<label for="autofocusSensitivity">Auto Focus
+																		Sensitivity</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading11">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemGeneralSpecs" aria-expanded="false"
+														aria-controls="itemGeneralSpecs">General</button>
+												</h2>
+												<div id="itemGeneralSpecs"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading11"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Number Of Rotors" id="numberOfRotors"
+																		name="numberOfRotors"
+																		th:value="${item?.itemGeneralSpecs?.numberOfRotors}">
+																	<label for="numberOfRotors">Number Of Rotors</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Operating Temperature"
+																		id="operatingTemperature" name="operatingTemperature"
+																		th:value="${item?.itemGeneralSpecs?.operatingTemperature}">
+																	<label for="operatingTemperature">Operating
+																		Temperature</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Overall Dimensions"
+																		id="overallDimensions" name="overallDimensions"
+																		th:value="${item?.itemGeneralSpecs?.overallDimensions}">
+																	<label for="overallDimensions">Overall
+																		Dimensions</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading12">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#itemImaging"
+														aria-expanded="false" aria-controls="itemImaging">Imaging</button>
+												</h2>
+												<div id="itemImaging" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading12"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Lens Mount" id="lensMount"
+																		name="lensMount"
+																		th:value="${item?.itemImaging?.lensMount}"> <label
+																		for="lensMount">Lens Mount</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Camera Format" id="cameraFormat"
+																		name="cameraFormat"
+																		th:value="${item?.itemImaging?.cameraFormat}">
+																	<label for="cameraFormat">Camera Format</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Pixels" id="pixels" name="pixels"
+																		th:value="${item?.itemImaging?.pixels}"> <label
+																		for="pixels">Pixels</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Resolution"
+																		id="maximumResolution" name="maximumResolution"
+																		th:value="${item?.itemImaging?.maximumResolution}">
+																	<label for="maximumResolution">Maximum
+																		Resolution</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Aspect Ratio" id="aspectRatio"
+																		name="aspectRatio"
+																		th:value="${item?.itemImaging?.aspectRatio}">
+																	<label for="aspectRatio">Aspect Ratio</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Sensor Type" id="sensorType"
+																		name="sensorType"
+																		th:value="${item?.itemImaging?.sensorType}"> <label
+																		for="sensorType">Sensor Type</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Sensor Size" id="sensorSize"
+																		name="sensorSize"
+																		th:value="${item?.itemImaging?.sensorSize}"> <label
+																		for="sensorSize">Sensor Size</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Image File Format" id="imageFileFormat"
+																		name="imageFileFormat"
+																		th:value="${item?.itemImaging?.imageFileFormat}">
+																	<label for="imageFileFormat">Image File Format</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Bit Depth" id="bitDepth" name="bitDepth"
+																		th:value="${item?.itemImaging?.bitDepth}"> <label
+																		for="bitDepth">Bit Depth</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Image Stabilization"
+																		id="imageStabilization" name="imageStabilization"
+																		th:value="${item?.itemImaging?.imageStabilization}">
+																	<label for="imageStabilization">Image
+																		Stabilization</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading13">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#ItemInterface"
+														aria-expanded="false" aria-controls="ItemInterface">Interface</button>
+												</h2>
+												<div id="ItemInterface" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading13"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Memory Card Slot" id="memoryCardSlot"
+																		name="memoryCardSlot"
+																		th:value="${item?.itemInterface?.memoryCardSlot}">
+																	<label for="memoryCardSlot">Memory Card Slot</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Connectivity" id="interfaceConnectivity"
+																		name="interfaceConnectivity"
+																		th:value="${item?.itemInterface?.interfaceConnectivity}">
+																	<label for="interfaceConnectivity">Connectivity</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Wireless" id="wireless" name="wireless"
+																		th:value="${item?.itemInterface?.wireless}"> <label
+																		for="wireless">Wireless</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading14">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemPackagingInfo" aria-expanded="false"
+														aria-controls="itemPackagingInfo">Packaging Info</button>
+												</h2>
+												<div id="itemPackagingInfo"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading14"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Package Weight" id="packageWeight"
+																		name="packageWeight"
+																		th:value="${item?.itemPackagingInfo?.packageWeight}">
+																	<label for="packageWeight">Package Weight</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Connectivity" id="dimensions"
+																		name="dimensions"
+																		th:value="${item?.itemPackagingInfo?.dimensions}">
+																	<label for="dimensions">Dimensions</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading15">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemPerformance" aria-expanded="false"
+														aria-controls="itemPerformance">Performance</button>
+												</h2>
+												<div id="itemPerformance"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading15"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Take Off Weight"
+																		id="maximumTakeoffWeight" name="maximumTakeoffWeight"
+																		th:value="${item?.itemPerformance?.maximumTakeoffWeight}">
+																	<label for="maximumTakeoffWeight">Maximum Take
+																		Off Weight</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Horizontal Speed"
+																		id="maximumHorizontalSpeed"
+																		name="maximumHorizontalSpeed"
+																		th:value="${item?.itemPerformance?.maximumHorizontalSpeed}">
+																	<label for="maximumHorizontalSpeed">Maximum
+																		Horizontal Speed</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Ascent Speed"
+																		id="maximumAscentSpeed" name="maximumAscentSpeed"
+																		th:value="${item?.itemPerformance?.maximumAscentSpeed}">
+																	<label for="maximumAscentSpeed">Maximum Ascent
+																		Speed</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Descent Speed"
+																		id="maximumDescentSpeed" name="maximumDescentSpeed"
+																		th:value="${item?.itemPerformance?.maximumDescentSpeed}">
+																	<label for="maximumDescentSpeed">Maximum
+																		Descent Speed</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Wind Resistance"
+																		id="maximumWindResistance"
+																		name="maximumWindResistance"
+																		th:value="${item?.itemPerformance?.maximumWindResistance}">
+																	<label for="maximumWindResistance">Maximum Wind
+																		Resistance</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Flight Ceiling" id="flightCeiling"
+																		name="flightCeiling"
+																		th:value="${item?.itemPerformance?.flightCeiling}">
+																	<label for="flightCeiling">Flight Ceiling</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Flight Time"
+																		id="maximumFlightTime" name="maximumFlightTime"
+																		th:value="${item?.itemPerformance?.maximumFlightTime}">
+																	<label for="maximumFlightTime">Maximum Flight
+																		Time</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Hover Time" id="maximumHoverTime"
+																		name="maximumHoverTime"
+																		th:value="${item?.itemPerformance?.maximumHoverTime}">
+																	<label for="maximumHoverTime">Maximum Hover
+																		Time</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Tilt Angle" id="maximumTiltAngle"
+																		name="maximumTiltAngle"
+																		th:value="${item?.itemPerformance?.maximumTiltAngle}">
+																	<label for="maximumTiltAngle">Maximum Tilt
+																		Angle</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Hovering Accuracy" id="hoveringAccuracy"
+																		name="hoveringAccuracy"
+																		th:value="${item?.itemPerformance?.hoveringAccuracy}">
+																	<label for="hoveringAccuracy">Hovering Accuracy</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading17">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemRemoteControllerOrTransmitter"
+														aria-expanded="false"
+														aria-controls="itemRemoteControllerOrTransmitter">Remote
+														Controller / Transmitter</button>
+												</h2>
+												<div id="itemRemoteControllerOrTransmitter"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading17"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Operating Frequency"
+																		id="operatingFrequency" name="operatingFrequency"
+																		th:value="${item?.itemRemoteControllerOrTransmitter?.operatingFrequency}">
+																	<label for="operatingFrequency">Operating
+																		Frequency</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Operating Distance"
+																		id="maximumOperatingDistance"
+																		name="maximumOperatingDistance"
+																		th:value="${item?.itemRemoteControllerOrTransmitter?.maximumOperatingDistance}">
+																	<label for="maximumOperatingDistance">Maximum
+																		Operating Distance</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Transmitter Power" id="transmitterPower"
+																		name="transmitterPower"
+																		th:value="${item?.itemRemoteControllerOrTransmitter?.transmitterPower}">
+																	<label for="transmitterPower">Transmitter Power</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Connectivity" id="connectivity"
+																		name="connectivity"
+																		th:value="${item?.itemRemoteControllerOrTransmitter?.connectivity}">
+																	<label for="connectivity">Connectivity</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading19">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#itemVideoSpecs"
+														aria-expanded="false" aria-controls="itemVideoSpecs">Video</button>
+												</h2>
+												<div id="itemVideoSpecs" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading19"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">Recording Modes</div>
+																<div class="form-floating mb-3">
+																	<textarea class="form-control" id="recordingModes"
+																		name="recordingModes"
+																		th:text="${item?.itemVideoSpecs?.recordingModes}"
+																		rows="3"></textarea>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">External Recording
+																	Modes</div>
+																<div class="form-floating mb-3">
+																	<textarea class="form-control"
+																		id="externalRecordingModes"
+																		name="externalRecordingModes"
+																		th:text="${item?.itemVideoSpecs?.externalRecordingModes}"
+																		rows="3"></textarea>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Recording Limit" id="recordingLimit"
+																		name="recordingLimit"
+																		th:value="${item?.itemVideoSpecs?.recordingLimit}">
+																	<label for="recordingLimit">Recording Limit</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Operating Environment" id="videoEncoding"
+																		name="videoEncoding"
+																		th:value="${item?.itemVideoSpecs?.videoEncoding}">
+																	<label for="videoEncoding">Video Encoding</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Audio Recording" id="audioRecording"
+																		name="audioRecording"
+																		th:value="${item?.itemVideoSpecs?.audioRecording}">
+																	<label for="audioRecording">Audio Recording</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Audio File Format" id="audioFileFormat"
+																		name="audioFileFormat"
+																		th:value="${item?.itemVideoSpecs?.audioFileFormat}">
+																	<label for="audioFileFormat">Audio File Format</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading20">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemViewfinderMonitor"
+														aria-expanded="false"
+														aria-controls="itemViewfinderMonitor">View finder
+														Monitor</button>
+												</h2>
+												<div id="itemViewfinderMonitor"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading20"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="View Finder Type" id="viewfinderType"
+																		name="viewfinderType"
+																		th:value="${item?.itemViewfinderMonitor?.viewfinderType}">
+																	<label for="viewfinderType">View Finder Type</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="View Finder Size" id="viewfinderSize"
+																		name="viewfinderSize"
+																		th:value="${item?.itemViewfinderMonitor?.viewfinderSize}">
+																	<label for="viewfinderSize">View Finder Size</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="View Finder Resolution"
+																		id="viewfinderResolution" name="viewfinderResolution"
+																		th:value="${item?.itemViewfinderMonitor?.viewfinderResolution}">
+																	<label for="viewfinderResolution">View Finder
+																		Resolution</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="View Finder Eye Point"
+																		id="viewfinderEyePoint" name="viewfinderEyePoint"
+																		th:value="${item?.itemViewfinderMonitor?.viewfinderEyePoint}">
+																	<label for="viewfinderEyePoint">View Finder Eye
+																		Point</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="View Finder Coverage"
+																		id="viewfinderCoverage" name="viewfinderCoverage"
+																		th:value="${item?.itemViewfinderMonitor?.viewfinderCoverage}">
+																	<label for="viewfinderCoverage">View Finder
+																		Coverage</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Audio File Format"
+																		id="viewfinderMagnification"
+																		name="viewfinderMagnification"
+																		th:value="${item?.itemViewfinderMonitor?.viewfinderMagnification}">
+																	<label for="viewfinderMagnification">View
+																		Finder Magnification</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Diopter Adjustment"
+																		id="diopterAdjustment" name="diopterAdjustment"
+																		th:value="${item?.itemViewfinderMonitor?.diopterAdjustment}">
+																	<label for="diopterAdjustment">Diopter
+																		Adjustment</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Monitor Size" id="monitorSize"
+																		name="monitorSize"
+																		th:value="${item?.itemViewfinderMonitor?.monitorSize}">
+																	<label for="monitorSize">Monitor Size</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Monitor Resolution"
+																		id="monitorResolution" name="monitorResolution"
+																		th:value="${item?.itemViewfinderMonitor?.monitorResolution}">
+																	<label for="monitorResolution">Monitor
+																		Resolution</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Monitor Type" id="monitorType"
+																		name="monitorType"
+																		th:value="${item?.itemViewfinderMonitor?.monitorType}">
+																	<label for="monitorType">Monitor Type</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading21">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemVisionSystem" aria-expanded="false"
+														aria-controls="itemVisionSystem">Vision System</button>
+												</h2>
+												<div id="itemVisionSystem"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading21"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Vision System" id="visionSystem"
+																		name="visionSystem"
+																		th:value="${item?.itemVisionSystem?.visionSystem}">
+																	<label for="visionSystem">Vision System</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Obstacle Sensory Range"
+																		id="obstacleSensoryRange" name="obstacleSensoryRange"
+																		th:value="${item?.itemVisionSystem?.obstacleSensoryRange}">
+																	<label for="obstacleSensoryRange">Obstacle
+																		Sensory Range</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Forward Field of View"
+																		id="forwardFieldOfView" name="forwardFieldOfView"
+																		th:value="${item?.itemVisionSystem?.forwardFieldOfView}">
+																	<label for="forwardFieldOfView">Forward Field
+																		of View</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Downward Field Of View"
+																		id="downwardFieldOfView" name="downwardFieldOfView"
+																		th:value="${item?.itemVisionSystem?.downwardFieldOfView}">
+																	<label for="downwardFieldOfView">Downward Field
+																		Of View</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Backward Field of View"
+																		id="backwardFieldOfView" name="backwardFieldOfView"
+																		th:value="${item?.itemVisionSystem?.backwardFieldOfView}">
+																	<label for="backwardFieldOfView">Backward Field
+																		of View</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Audio File Format"
+																		id="operatingEnvironment" name="operatingEnvironment"
+																		th:value="${item?.itemVisionSystem?.operatingEnvironment}">
+																	<label for="operatingEnvironment">Operating
+																		Environment</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+										</div>
+									</div>
+
+									<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+										<button class="btn btn-secondary" type="reset">Clear</button>
+										<button class="btn btn-warning" type="submit">Add</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Item Add Modal End-->
+
+
+				<!-- Item Edit Modal -->
+				<div th:fragment="edit-modal" class="modal fade"
+					th:id="'itemEditModal'+${item.id}" data-bs-backdrop="static"
+					data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="itemEditModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-lg">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="itemEditModalLabel">Item Edit
+									Form</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<form class="form-floating" th:action="@{/item/editItem}"
+									method="POST" th:object="${itemList}"
+									enctype="multipart/form-data">
+
+									<div class="row g-2">
+										<div class="col-md">
+											<div class="form-floating mb-3">
+												<input type="text"
+													class="form-control border-top-0 border-start-0 border-end-0"
+													th:value="${item.id}" id="id" name="id"
+													placeholder="Item ID" required readonly> <label
+													for="id">Item ID *</label>
+											</div>
+										</div>
+									</div>
+
+									<div class="row g-2">
+										<div class="col-md">
+											<div class="form-floating mb-3">
+												<select
+													class="form-select border-top-0 border-start-0 border-end-0"
+													id="category" name="category" aria-label="Category"
+													required>
+													<option th:each="cat : ${catList}"
+														th:value="${cat.catName}" th:text="${cat.catName}"
+														th:selected="${item.category != null && item.category.catName == cat.catName}">
+												</select> <label for="category">Category *</label>
+											</div>
+										</div>
+
+										<div class="col-md">
+											<div class="form-floating  mb-3">
+												<select
+													class="form-select border-top-0 border-start-0 border-end-0"
+													id="brand" name="brand" aria-label="Brand" required>
+													<option th:each="brand : ${brandList}"
+														th:value="${brand.brandName}" th:text="${brand.brandName}"
+														th:selected="${item.brand != null && item.brand.brandName == brand.brandName}">
+												</select> <label for="brand">Brand *</label>
+											</div>
+										</div>
+									</div>
+
+									<div class="row g-2">
+										<div class="col-md">
+											<div class="form-floating mb-3">
+												<input type="text"
+													class="form-control border-top-0 border-start-0 border-end-0"
+													id="itemCode" name="itemCode" placeholder="Item Code"
+													th:value="${item.itemCode}" required> <label
+													for="itemCode">Item Code *</label>
+											</div>
+										</div>
+										<div class="col-md">
+											<div class="form-floating mb-3">
+												<input type="text"
+													class="form-control border-top-0 border-start-0 border-end-0"
+													id="itemName" name="itemName" placeholder="Item Name"
+													th:value="${item.itemName}" required> <label
+													for="itemName">Item Name *</label>
+											</div>
+										</div>
+									</div>
+
+									<div class="row g-2">
+										<div class="col-md">
+											<div class="form-floating mb-3">
+												<input type="number"
+													class="form-control border-top-0 border-start-0 border-end-0"
+													id="qty" name="qty" placeholder="Quantity" min="1"
+													th:value="${item.qty}" required> <label for="qty">Quantity
+													*</label>
+											</div>
+										</div>
+										<div class="col-md">
+											<div class="form-floating mb-3">
+												<input type="number"
+													class="form-control border-top-0 border-start-0 border-end-0"
+													id="available" name="available" placeholder="Available Qty"
+													th:value="${item.available}" th:max="${item.qty}"
+													th:min="1" required> <label for="available">Available
+													Qty *</label>
+											</div>
+										</div>
+									</div>
+
+									<table class="w-100">
+										<thead>
+											<tr>
+												<th scope="col">Days</th>
+												<th scope="col">Price for a day</th>
+												<th scope="col">Deposit for a day</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>1 - 2 Days:</td>
+												<td>
+													<div class="form-floating mb-3">
+														<input type="text"
+															class="form-control border-top-0 border-start-0 border-end-0"
+															id="rentPrice1To2Days" name="rentPrice1To2Days"
+															placeholder="Rent Price"
+															th:value="${item.rentPrice1To2Days}" required> <label
+															for="rentPrice1To2Days">Rent Price *</label>
+													</div>
+												</td>
+												<td>
+													<div class="form-floating mb-3">
+														<input type="text"
+															class="form-control border-top-0 border-start-0 border-end-0"
+															id="deposit1To2Days" name="deposit1To2Days"
+															placeholder="Deposit" th:value="${item.deposit1To2Days}"
+															required> <label for="deposit1To2Days">Deposit
+															*</label>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td>3 - 4 Days:</td>
+												<td>
+													<div class="form-floating mb-3">
+														<input type="text"
+															class="form-control border-top-0 border-start-0 border-end-0"
+															id="rentPrice3To4Days" name="rentPrice3To4Days"
+															placeholder="Rent Price"
+															th:value="${item.rentPrice3To4Days}" required> <label
+															for="rentPrice3To4Days">Rent Price *</label>
+													</div>
+												</td>
+												<td>
+													<div class="form-floating mb-3">
+														<input type="text"
+															class="form-control border-top-0 border-start-0 border-end-0"
+															id="deposit3To4Days" name="deposit3To4Days"
+															placeholder="Deposit" th:value="${item.deposit3To4Days}"
+															required> <label for="deposit3To4Days">Deposit
+															*</label>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td>More than 4 Days:</td>
+												<td>
+													<div class="form-floating mb-3">
+														<input type="text"
+															class="form-control border-top-0 border-start-0 border-end-0"
+															id="rentPrice5Days" name="rentPrice5Days"
+															placeholder="Rent Price"
+															th:value="${item.rentPrice5Days}" required> <label
+															for="rentPrice5Days">Rent Price *</label>
+													</div>
+												</td>
+												<td>
+													<div class="form-floating mb-3">
+														<input type="text"
+															class="form-control border-top-0 border-start-0 border-end-0"
+															id="deposit5Days" name="deposit5Days"
+															placeholder="Deposit" th:value="${item.deposit5Days}"
+															required> <label for="deposit5Days">Deposit
+															*</label>
+													</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+
+									<div class="row g-2">
+										<div class="col-md">
+											<div class="form-floating mb-3">Item Image *</div>
+											<div class="col-sm-2 imgUp">
+												<div class="imagePreview"
+													th:style="'background-image: url(' + ${item.itemImg} + ');'"></div>
+												<label class="btn btn-warning btn-sm d-grid"> Upload
+													<input type="file" accept=".png, .jpg, .jpeg"
+													class="uploadFile img" th:value="${item.itemImg}"
+													name="itemImg"
+													style="width: 0px; height: 0px; overflow: hidden;">
+												</label>
+											</div>
+										</div>
+										<div class="col-md-8">
+											<div class="form-floating mb-3">Key Features</div>
+											<div class="form-floating mb-3">
+												<textarea class="form-control" id="keyFeatures"
+													name="keyFeatures" th:text=${item.keyFeatures} rows="3"></textarea>
+											</div>
+										</div>
+									</div>
+
+									<div class="form-floating mb-3">Overview</div>
+									<div class="form-floating mb-3">
+										<textarea class="form-control" id="overview" name="overview"
+											th:text=${item.overview} rows="3"></textarea>
+									</div>
+
+									<div class="form-floating mb-3">
+										Specs <small>(Optional)</small>
+									</div>
+									<div class="mb-3 card">
+										<div class="accordion accordion-flush" id="accordionSpecs">
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading1">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#item3dObjectDetection"
+														aria-expanded="false"
+														aria-controls="item3dObjectDetection">3D Object
+														Detection</button>
+												</h2>
+												<div id="item3dObjectDetection"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading1"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="3D Object Detection ID"
+																		id="item3dObjectDetectionId"
+																		name="item3dObjectDetectionId"
+																		th:value="${item?.item3dObjectDetection?.id}">
+																	<label for="item3dObjectDetectionId">3D Object
+																		Detection ID</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Operating Range" id="operatingRange"
+																		name="operatingRange"
+																		th:value="${item?.item3dObjectDetection?.operatingRange}">
+																	<label for="operatingRange">Operating Range</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading2">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#itemBattery"
+														aria-expanded="false" aria-controls="itemBattery">Battery</button>
+												</h2>
+												<div id="itemBattery" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading2"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Battery ID" id="itemBatteryId"
+																		name="itemBatteryId"
+																		th:value="${item?.itemBattery?.id}"> <label
+																		for="itemBatteryId">Battery ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Chemistry" id="chemistry"
+																		name="chemistry"
+																		th:value="${item?.itemBattery?.chemistry}"> <label
+																		for="chemistry">Chemistry</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Capacity" id="capacity" name="capacity"
+																		th:value="${item?.itemBattery?.capacity}"> <label
+																		for="capacity">Capacity</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Configuration" id="configuration"
+																		name="configuration"
+																		th:value="${item?.itemBattery?.configuration}">
+																	<label for="configuration">Configuration</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Operating Temperature"
+																		id="batteryOperatingTemperature"
+																		name="batteryOperatingTemperature"
+																		th:value="${item?.itemBattery?.batteryOperatingTemperature}">
+																	<label for="batteryOperatingTemperature">Operating
+																		Temperature</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading3">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemCameraSpecs" aria-expanded="false"
+														aria-controls="itemCameraSpecs">Camera</button>
+												</h2>
+												<div id="itemCameraSpecs"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading3"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Camera ID" id="itemCameraSpecsId"
+																		name="itemCameraSpecsId"
+																		th:value="${item?.itemCameraSpecs?.id}"> <label
+																		for="itemCameraSpecsId">Camera ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Sensor" id="sensor" name="sensor"
+																		th:value="${item?.itemCameraSpecs?.sensor}"> <label
+																		for="sensor">Sensor</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Effective Pixels" id="effectivePixels"
+																		name="effectivePixels"
+																		th:value="${item?.itemCameraSpecs?.effectivePixels}">
+																	<label for="effectivePixels">Effective Pixels</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Lens Field of View" id="lensFieldofView"
+																		name="lensFieldofView"
+																		th:value="${item?.itemCameraSpecs?.lensFieldofView}">
+																	<label for="lensFieldofView">Lens Field of View</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Aperture" id="aperture" name="aperture"
+																		th:value="${item?.itemCameraSpecs?.aperture}">
+																	<label for="aperture">Aperture</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Minimum Focusing Distance"
+																		id="minimumFocusingDistance"
+																		name="minimumFocusingDistance"
+																		th:value="${item?.itemCameraSpecs?.minimumFocusingDistance}">
+																	<label for="minimumFocusingDistance">Minimum
+																		Focusing Distance</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Photo ISO Range" id="photoISORange"
+																		name="photoISORange"
+																		th:value="${item?.itemCameraSpecs?.photoISORange}">
+																	<label for="photoISORange">Photo ISO Range</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Electronic Shutter Speed"
+																		id="electronicShutterSpeed"
+																		name="electronicShutterSpeed"
+																		th:value="${item?.itemCameraSpecs?.electronicShutterSpeed}">
+																	<label for="electronicShutterSpeed">Electronic
+																		Shutter Speed</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Photo Format" id="photoFormat"
+																		name="photoFormat"
+																		th:value="${item?.itemCameraSpecs?.photoFormat}">
+																	<label for="photoFormat">Photo Format</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Video Format" id="videoFormat"
+																		name="videoFormat"
+																		th:value="${item?.itemCameraSpecs?.videoFormat}">
+																	<label for="videoFormat">Video Format</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading4">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#itemCharger"
+														aria-expanded="false" aria-controls="itemCharger">Charger</button>
+												</h2>
+												<div id="itemCharger" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading4"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Charger ID" id="itemChargerId"
+																		name="itemChargerId"
+																		th:value="${item?.itemCharger?.id}"> <label
+																		for="itemChargerId">Charger ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="AC Input Power" id="acInputPower"
+																		name="acInputPower"
+																		th:value="${item?.itemCharger?.acInputPower}">
+																	<label for="acInputPower">AC Input Power</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Output Voltage" id="outputVoltage"
+																		name="outputVoltage"
+																		th:value="${item?.itemCharger?.outputVoltage}">
+																	<label for="outputVoltage">Output Voltage</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Power Rating" id="powerRating"
+																		name="powerRating"
+																		th:value="${item?.itemCharger?.powerRating}">
+																	<label for="powerRating">Power Rating</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading6">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemExposureControl"
+														aria-expanded="false" aria-controls="itemExposureControl">Exposure
+														Control</button>
+												</h2>
+												<div id="itemExposureControl"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading6"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Exposure Control ID"
+																		id="itemExposureControlId"
+																		name="itemExposureControlId"
+																		th:value="${item?.itemExposureControl?.id}"> <label
+																		for="itemExposureControlId">Exposure Control
+																		ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Exposure Control" id="exposureControl"
+																		name="exposureControl"
+																		th:value="${item?.itemExposureControl?.exposureControl}">
+																	<label for="exposureControl">Exposure Control</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Flash Modes" id="exposureFlashModes"
+																		name="exposureFlashModes"
+																		th:value="${item?.itemExposureControl?.exposureFlashModes}">
+																	<label for="exposureFlashModes">Flash Modes</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="ISO Sensitivity" id="isoSensitivity"
+																		name="isoSensitivity"
+																		th:value="${item?.itemExposureControl?.isoSensitivity}">
+																	<label for="isoSensitivity">ISO Sensitivity</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Metering Method" id="meteringMethod"
+																		name="meteringMethod"
+																		th:value="${item?.itemExposureControl?.meteringMethod}">
+																	<label for="meteringMethod">Metering Method</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Exposure Modes" id="exposureModes"
+																		name="exposureModes"
+																		th:value="${item?.itemExposureControl?.exposureModes}">
+																	<label for="exposureModes">Exposure Modes</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Exposure Compensation"
+																		id="exposureCompensation" name="exposureCompensation"
+																		th:value="${item?.itemExposureControl?.exposureCompensation}">
+																	<label for="exposureCompensation">Exposure
+																		Compensation</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Metering Range" id="meteringRange"
+																		name="meteringRange"
+																		th:value="${item?.itemExposureControl?.meteringRange}">
+																	<label for="meteringRange">Metering Range</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="White Balance" id="whiteBalance"
+																		name="whiteBalance"
+																		th:value="${item?.itemExposureControl?.whiteBalance}">
+																	<label for="whiteBalance">White Balance</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Self Timer" id="selfTimer"
+																		name="selfTimer"
+																		th:value="${item?.itemExposureControl?.selfTimer}">
+																	<label for="selfTimer">Self Timer</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Shutter Speed" id="shutterSpeed"
+																		name="shutterSpeed"
+																		th:value="${item?.itemExposureControl?.shutterSpeed}">
+																	<label for="shutterSpeed">Shutter Speed</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Continuous Shooting"
+																		id="continuousShooting" name="continuousShooting"
+																		th:value="${item?.itemExposureControl?.continuousShooting}">
+																	<label for="continuousShooting">Continuous
+																		Shooting</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading7">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#itemFlash"
+														aria-expanded="false" aria-controls="itemFlash">Flash</button>
+												</h2>
+												<div id="itemFlash" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading7"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Flash ID" id="itemFlashId"
+																		name="itemFlashId" th:value="${item?.itemFlash?.id}">
+																	<label for="itemFlashId">Flash ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Built In Flash" id="builtInFlash"
+																		name="builtInFlash"
+																		th:value="${item?.itemFlash?.builtInFlash}"> <label
+																		for="builtInFlash">Built In Flash</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Dedicated Flash System"
+																		id="dedicatedFlashSystem" name="dedicatedFlashSystem"
+																		th:value="${item?.itemFlash?.dedicatedFlashSystem}">
+																	<label for="dedicatedFlashSystem">Dedicated
+																		Flash System</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="External Flash Connection"
+																		id="externalFlashConnection"
+																		name="externalFlashConnection"
+																		th:value="${item?.itemFlash?.externalFlashConnection}">
+																	<label for="externalFlashConnection">External
+																		Flash Connection</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Flash Modes" id="flashModes"
+																		name="flashModes"
+																		th:value="${item?.itemFlash?.flashModes}"> <label
+																		for="flashModes">Flash Modes</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Sync Speed" id="maximumSyncSpeed"
+																		name="maximumSyncSpeed"
+																		th:value="${item?.itemFlash?.maximumSyncSpeed}">
+																	<label for="maximumSyncSpeed">Maximum Sync
+																		Speed</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Flash Compensation"
+																		id="flashCompensation" name="flashCompensation"
+																		th:value="${item?.itemFlash?.flashCompensation}">
+																	<label for="flashCompensation">Flash
+																		Compensation</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading8">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemFlightControlSystem"
+														aria-expanded="false"
+														aria-controls="itemFlightControlSystem">Flight
+														Control System</button>
+												</h2>
+												<div id="itemFlightControlSystem"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading8"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="col-md d-none">
+															<div class="form-floating mb-3">
+																<input type="text"
+																	class="form-control border-top-0 border-start-0 border-end-0"
+																	placeholder="Flight Control System ID"
+																	id="itemFlightControlSystemId"
+																	name="itemFlightControlSystemId"
+																	th:value="${item?.itemFlightControlSystem?.id}">
+																<label for="itemFlightControlSystemId">Flight
+																	Control System ID</label>
+															</div>
+														</div>
+
+														<div class="col-md">
+															<div class="form-floating mb-3">
+																<input type="text"
+																	class="form-control border-top-0 border-start-0 border-end-0"
+																	placeholder="GNSS Support" id="gnssSupport"
+																	name="gnssSupport"
+																	th:value="${item?.itemFlightControlSystem?.gnssSupport}">
+																<label for="gnssSupport">GNSS Support</label>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading9">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#itemFocus"
+														aria-expanded="false" aria-controls="itemFocus">Focus</button>
+												</h2>
+												<div id="itemFocus" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading9"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Focus ID" id="itemFocusId"
+																		name="itemFocusId" th:value="${item?.itemFocus?.id}">
+																	<label for="itemFocusId">Focus ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Focus Type" id="focusType"
+																		name="focusType"
+																		th:value="${item?.itemFocus?.focusType}"> <label
+																		for="focusType">Focus Type</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Focus Mode" id="focusMode"
+																		name="focusMode"
+																		th:value="${item?.itemFocus?.focusMode}"> <label
+																		for="focusMode">Focus Mode</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Auto Focus Points" id="autofocusPoints"
+																		name="autofocusPoints"
+																		th:value="${item?.itemFocus?.autofocusPoints}">
+																	<label for="autofocusPoints">Auto Focus Points</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Auto Focus Sensitivity"
+																		id="autofocusSensitivity" name="autofocusSensitivity"
+																		th:value="${item?.itemFocus?.autofocusSensitivity}">
+																	<label for="autofocusSensitivity">Auto Focus
+																		Sensitivity</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading11">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemGeneralSpecs" aria-expanded="false"
+														aria-controls="itemGeneralSpecs">General</button>
+												</h2>
+												<div id="itemGeneralSpecs"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading11"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="General ID" id="itemGeneralSpecsId"
+																		name="itemGeneralSpecsId"
+																		th:value="${item?.itemGeneralSpecs?.id}"> <label
+																		for="itemGeneralSpecsId">General ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Number Of Rotors" id="numberOfRotors"
+																		name="numberOfRotors"
+																		th:value="${item?.itemGeneralSpecs?.numberOfRotors}">
+																	<label for="numberOfRotors">Number Of Rotors</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Operating Temperature"
+																		id="operatingTemperature" name="operatingTemperature"
+																		th:value="${item?.itemGeneralSpecs?.operatingTemperature}">
+																	<label for="operatingTemperature">Operating
+																		Temperature</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Overall Dimensions"
+																		id="overallDimensions" name="overallDimensions"
+																		th:value="${item?.itemGeneralSpecs?.overallDimensions}">
+																	<label for="overallDimensions">Overall
+																		Dimensions</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading12">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#itemImaging"
+														aria-expanded="false" aria-controls="itemImaging">Imaging</button>
+												</h2>
+												<div id="itemImaging" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading12"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Imaging ID" id="itemImagingId"
+																		name="itemImagingId"
+																		th:value="${item?.itemImaging?.id}"> <label
+																		for="itemImagingId">Imaging ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Lens Mount" id="lensMount"
+																		name="lensMount"
+																		th:value="${item?.itemImaging?.lensMount}"> <label
+																		for="lensMount">Lens Mount</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Camera Format" id="cameraFormat"
+																		name="cameraFormat"
+																		th:value="${item?.itemImaging?.cameraFormat}">
+																	<label for="cameraFormat">Camera Format</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Pixels" id="pixels" name="pixels"
+																		th:value="${item?.itemImaging?.pixels}"> <label
+																		for="pixels">Pixels</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Resolution"
+																		id="maximumResolution" name="maximumResolution"
+																		th:value="${item?.itemImaging?.maximumResolution}">
+																	<label for="maximumResolution">Maximum
+																		Resolution</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Aspect Ratio" id="aspectRatio"
+																		name="aspectRatio"
+																		th:value="${item?.itemImaging?.aspectRatio}">
+																	<label for="aspectRatio">Aspect Ratio</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Sensor Type" id="sensorType"
+																		name="sensorType"
+																		th:value="${item?.itemImaging?.sensorType}"> <label
+																		for="sensorType">Sensor Type</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Sensor Size" id="sensorSize"
+																		name="sensorSize"
+																		th:value="${item?.itemImaging?.sensorSize}"> <label
+																		for="sensorSize">Sensor Size</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Image File Format" id="imageFileFormat"
+																		name="imageFileFormat"
+																		th:value="${item?.itemImaging?.imageFileFormat}">
+																	<label for="imageFileFormat">Image File Format</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Bit Depth" id="bitDepth" name="bitDepth"
+																		th:value="${item?.itemImaging?.bitDepth}"> <label
+																		for="bitDepth">Bit Depth</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Image Stabilization"
+																		id="imageStabilization" name="imageStabilization"
+																		th:value="${item?.itemImaging?.imageStabilization}">
+																	<label for="imageStabilization">Image
+																		Stabilization</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading13">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#ItemInterface"
+														aria-expanded="false" aria-controls="ItemInterface">Interface</button>
+												</h2>
+												<div id="ItemInterface" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading13"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Interface ID" id="itemInterfaceId"
+																		name="itemInterfaceId"
+																		th:value="${item?.itemInterface?.id}"> <label
+																		for="itemInterfaceId">Interface ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Memory Card Slot" id="memoryCardSlot"
+																		name="memoryCardSlot"
+																		th:value="${item?.itemInterface?.memoryCardSlot}">
+																	<label for="memoryCardSlot">Memory Card Slot</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Connectivity" id="interfaceConnectivity"
+																		name="interfaceConnectivity"
+																		th:value="${item?.itemInterface?.interfaceConnectivity}">
+																	<label for="interfaceConnectivity">Connectivity</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Wireless" id="wireless" name="wireless"
+																		th:value="${item?.itemInterface?.wireless}"> <label
+																		for="wireless">Wireless</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading14">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemPackagingInfo" aria-expanded="false"
+														aria-controls="itemPackagingInfo">Packaging Info</button>
+												</h2>
+												<div id="itemPackagingInfo"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading14"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Packaging ID" id="itemPackagingInfoId"
+																		name="itemPackagingInfoId"
+																		th:value="${item?.itemPackagingInfo?.id}"> <label
+																		for="itemPackagingInfoId">Packaging ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Package Weight" id="packageWeight"
+																		name="packageWeight"
+																		th:value="${item?.itemPackagingInfo?.packageWeight}">
+																	<label for="packageWeight">Package Weight</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Connectivity" id="dimensions"
+																		name="dimensions"
+																		th:value="${item?.itemPackagingInfo?.dimensions}">
+																	<label for="dimensions">Dimensions</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading15">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemPerformance" aria-expanded="false"
+														aria-controls="itemPerformance">Performance</button>
+												</h2>
+												<div id="itemPerformance"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading15"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Performance ID" id="itemPerformanceId"
+																		name="itemPerformanceId"
+																		th:value="${item?.itemPerformance?.id}"> <label
+																		for="itemPerformanceId">Performance ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Take Off Weight"
+																		id="maximumTakeoffWeight" name="maximumTakeoffWeight"
+																		th:value="${item?.itemPerformance?.maximumTakeoffWeight}">
+																	<label for="maximumTakeoffWeight">Maximum Take
+																		Off Weight</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Horizontal Speed"
+																		id="maximumHorizontalSpeed"
+																		name="maximumHorizontalSpeed"
+																		th:value="${item?.itemPerformance?.maximumHorizontalSpeed}">
+																	<label for="maximumHorizontalSpeed">Maximum
+																		Horizontal Speed</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Ascent Speed"
+																		id="maximumAscentSpeed" name="maximumAscentSpeed"
+																		th:value="${item?.itemPerformance?.maximumAscentSpeed}">
+																	<label for="maximumAscentSpeed">Maximum Ascent
+																		Speed</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Descent Speed"
+																		id="maximumDescentSpeed" name="maximumDescentSpeed"
+																		th:value="${item?.itemPerformance?.maximumDescentSpeed}">
+																	<label for="maximumDescentSpeed">Maximum
+																		Descent Speed</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Wind Resistance"
+																		id="maximumWindResistance"
+																		name="maximumWindResistance"
+																		th:value="${item?.itemPerformance?.maximumWindResistance}">
+																	<label for="maximumWindResistance">Maximum Wind
+																		Resistance</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Flight Ceiling" id="flightCeiling"
+																		name="flightCeiling"
+																		th:value="${item?.itemPerformance?.flightCeiling}">
+																	<label for="flightCeiling">Flight Ceiling</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Flight Time"
+																		id="maximumFlightTime" name="maximumFlightTime"
+																		th:value="${item?.itemPerformance?.maximumFlightTime}">
+																	<label for="maximumFlightTime">Maximum Flight
+																		Time</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Hover Time" id="maximumHoverTime"
+																		name="maximumHoverTime"
+																		th:value="${item?.itemPerformance?.maximumHoverTime}">
+																	<label for="maximumHoverTime">Maximum Hover
+																		Time</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Tilt Angle" id="maximumTiltAngle"
+																		name="maximumTiltAngle"
+																		th:value="${item?.itemPerformance?.maximumTiltAngle}">
+																	<label for="maximumTiltAngle">Maximum Tilt
+																		Angle</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Hovering Accuracy" id="hoveringAccuracy"
+																		name="hoveringAccuracy"
+																		th:value="${item?.itemPerformance?.hoveringAccuracy}">
+																	<label for="hoveringAccuracy">Hovering Accuracy</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading17">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemRemoteControllerOrTransmitter"
+														aria-expanded="false"
+														aria-controls="itemRemoteControllerOrTransmitter">Remote
+														Controller / Transmitter</button>
+												</h2>
+												<div id="itemRemoteControllerOrTransmitter"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading17"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Remote ID"
+																		id="itemRemoteControllerOrTransmitterId"
+																		name="itemRemoteControllerOrTransmitterId"
+																		th:value="${item?.itemRemoteControllerOrTransmitter?.id}">
+																	<label for="itemRemoteControllerOrTransmitterId">Remote
+																		ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Operating Frequency"
+																		id="operatingFrequency" name="operatingFrequency"
+																		th:value="${item?.itemRemoteControllerOrTransmitter?.operatingFrequency}">
+																	<label for="operatingFrequency">Operating
+																		Frequency</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Maximum Operating Distance"
+																		id="maximumOperatingDistance"
+																		name="maximumOperatingDistance"
+																		th:value="${item?.itemRemoteControllerOrTransmitter?.maximumOperatingDistance}">
+																	<label for="maximumOperatingDistance">Maximum
+																		Operating Distance</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Transmitter Power" id="transmitterPower"
+																		name="transmitterPower"
+																		th:value="${item?.itemRemoteControllerOrTransmitter?.transmitterPower}">
+																	<label for="transmitterPower">Transmitter Power</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Connectivity" id="connectivity"
+																		name="connectivity"
+																		th:value="${item?.itemRemoteControllerOrTransmitter?.connectivity}">
+																	<label for="connectivity">Connectivity</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading19">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse" data-bs-target="#itemVideoSpecs"
+														aria-expanded="false" aria-controls="itemVideoSpecs">Video</button>
+												</h2>
+												<div id="itemVideoSpecs" class="accordion-collapse collapse"
+													aria-labelledby="flush-heading19"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Video ID" id="itemVideoSpecsId"
+																		name="itemVideoSpecsId"
+																		th:value="${item?.itemVideoSpecs?.id}"> <label
+																		for="itemVideoSpecsId">Video ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">Recording Modes</div>
+																<div class="form-floating mb-3">
+																	<textarea class="form-control" id="recordingModes"
+																		name="recordingModes"
+																		th:text="${item?.itemVideoSpecs?.recordingModes}"
+																		rows="3"></textarea>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">External Recording
+																	Modes</div>
+																<div class="form-floating mb-3">
+																	<textarea class="form-control"
+																		id="externalRecordingModes"
+																		name="externalRecordingModes"
+																		th:text="${item?.itemVideoSpecs?.externalRecordingModes}"
+																		rows="3"></textarea>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Recording Limit" id="recordingLimit"
+																		name="recordingLimit"
+																		th:value="${item?.itemVideoSpecs?.recordingLimit}">
+																	<label for="recordingLimit">Recording Limit</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Operating Environment" id="videoEncoding"
+																		name="videoEncoding"
+																		th:value="${item?.itemVideoSpecs?.videoEncoding}">
+																	<label for="videoEncoding">Video Encoding</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Audio Recording" id="audioRecording"
+																		name="audioRecording"
+																		th:value="${item?.itemVideoSpecs?.audioRecording}">
+																	<label for="audioRecording">Audio Recording</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Audio File Format" id="audioFileFormat"
+																		name="audioFileFormat"
+																		th:value="${item?.itemVideoSpecs?.audioFileFormat}">
+																	<label for="audioFileFormat">Audio File Format</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading20">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemViewfinderMonitor"
+														aria-expanded="false"
+														aria-controls="itemViewfinderMonitor">View finder
+														Monitor</button>
+												</h2>
+												<div id="itemViewfinderMonitor"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading20"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Monitor ID" id="itemViewfinderMonitorId"
+																		name="itemViewfinderMonitorId"
+																		th:value="${item?.itemViewfinderMonitor?.id}">
+																	<label for="itemViewfinderMonitorId">Monitor ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="View Finder Type" id="viewfinderType"
+																		name="viewfinderType"
+																		th:value="${item?.itemViewfinderMonitor?.viewfinderType}">
+																	<label for="viewfinderType">View Finder Type</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="View Finder Size" id="viewfinderSize"
+																		name="viewfinderSize"
+																		th:value="${item?.itemViewfinderMonitor?.viewfinderSize}">
+																	<label for="viewfinderSize">View Finder Size</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="View Finder Resolution"
+																		id="viewfinderResolution" name="viewfinderResolution"
+																		th:value="${item?.itemViewfinderMonitor?.viewfinderResolution}">
+																	<label for="viewfinderResolution">View Finder
+																		Resolution</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="View Finder Eye Point"
+																		id="viewfinderEyePoint" name="viewfinderEyePoint"
+																		th:value="${item?.itemViewfinderMonitor?.viewfinderEyePoint}">
+																	<label for="viewfinderEyePoint">View Finder Eye
+																		Point</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="View Finder Coverage"
+																		id="viewfinderCoverage" name="viewfinderCoverage"
+																		th:value="${item?.itemViewfinderMonitor?.viewfinderCoverage}">
+																	<label for="viewfinderCoverage">View Finder
+																		Coverage</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Audio File Format"
+																		id="viewfinderMagnification"
+																		name="viewfinderMagnification"
+																		th:value="${item?.itemViewfinderMonitor?.viewfinderMagnification}">
+																	<label for="viewfinderMagnification">View
+																		Finder Magnification</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Diopter Adjustment"
+																		id="diopterAdjustment" name="diopterAdjustment"
+																		th:value="${item?.itemViewfinderMonitor?.diopterAdjustment}">
+																	<label for="diopterAdjustment">Diopter
+																		Adjustment</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Monitor Size" id="monitorSize"
+																		name="monitorSize"
+																		th:value="${item?.itemViewfinderMonitor?.monitorSize}">
+																	<label for="monitorSize">Monitor Size</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Monitor Resolution"
+																		id="monitorResolution" name="monitorResolution"
+																		th:value="${item?.itemViewfinderMonitor?.monitorResolution}">
+																	<label for="monitorResolution">Monitor
+																		Resolution</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Monitor Type" id="monitorType"
+																		name="monitorType"
+																		th:value="${item?.itemViewfinderMonitor?.monitorType}">
+																	<label for="monitorType">Monitor Type</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<div class="accordion-item">
+												<h2 class="accordion-header" id="flush-heading21">
+													<button class="accordion-button collapsed" type="button"
+														data-bs-toggle="collapse"
+														data-bs-target="#itemVisionSystem" aria-expanded="false"
+														aria-controls="itemVisionSystem">Vision System</button>
+												</h2>
+												<div id="itemVisionSystem"
+													class="accordion-collapse collapse"
+													aria-labelledby="flush-heading21"
+													data-bs-parent="#accordionSpecs">
+													<div class="accordion-body">
+														<div class="row g-2">
+															<div class="col-md d-none">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Vision ID" id="itemVisionSystemId"
+																		name="itemVisionSystemId"
+																		th:value="${item?.itemVisionSystem?.id}"> <label
+																		for="itemVisionSystemId">Vision ID</label>
+																</div>
+															</div>
+
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Vision System" id="visionSystem"
+																		name="visionSystem"
+																		th:value="${item?.itemVisionSystem?.visionSystem}">
+																	<label for="visionSystem">Vision System</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Obstacle Sensory Range"
+																		id="obstacleSensoryRange" name="obstacleSensoryRange"
+																		th:value="${item?.itemVisionSystem?.obstacleSensoryRange}">
+																	<label for="obstacleSensoryRange">Obstacle
+																		Sensory Range</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Forward Field of View"
+																		id="forwardFieldOfView" name="forwardFieldOfView"
+																		th:value="${item?.itemVisionSystem?.forwardFieldOfView}">
+																	<label for="forwardFieldOfView">Forward Field
+																		of View</label>
+																</div>
+															</div>
+														</div>
+														<div class="row g-2">
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Downward Field Of View"
+																		id="downwardFieldOfView" name="downwardFieldOfView"
+																		th:value="${item?.itemVisionSystem?.downwardFieldOfView}">
+																	<label for="downwardFieldOfView">Downward Field
+																		Of View</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Backward Field of View"
+																		id="backwardFieldOfView" name="backwardFieldOfView"
+																		th:value="${item?.itemVisionSystem?.backwardFieldOfView}">
+																	<label for="backwardFieldOfView">Backward Field
+																		of View</label>
+																</div>
+															</div>
+															<div class="col-md">
+																<div class="form-floating mb-3">
+																	<input type="text"
+																		class="form-control border-top-0 border-start-0 border-end-0"
+																		placeholder="Audio File Format"
+																		id="operatingEnvironment" name="operatingEnvironment"
+																		th:value="${item?.itemVisionSystem?.operatingEnvironment}">
+																	<label for="operatingEnvironment">Operating
+																		Environment</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+										</div>
+									</div>
+
+									<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+										<button class="btn btn-secondary" type="reset">Clear</button>
+										<button class="btn btn-warning" type="submit">Edit</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Item Edit Modal End-->
+
+
+				<!-- Item Delete Modal -->
+				<div th:fragment="delete-modal" class="modal fade"
+					th:id="'itemDeleteModal'+${item.id}" data-bs-backdrop="static"
+					data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="itemDeleteModalLabel" aria-hidden="true">
+					<div class="modal-dialog  modal-dialog-centered modal-sm">
+						<div class="modal-content">
+							<div class="modal-header bg-danger">
+								<Strong class="modal-title" id="itemDeleteModalLabel">
+									<i class="fas fa-trash-alt"></i> Delete Item
+								</Strong>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<p>
+									Are you sure you want to delete the item : <b><span
+										th:text="${item.itemName}"></span></b>
+								</p>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary"
+									data-bs-dismiss="modal">Cancel</button>
+								<a type="button" class="btn btn-warning"
+									th:href="@{/item/deleteItem(id=${item.id})}">Delete</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Item Delete Modal End-->
+
+				<!-- Category List -->
+				<datalist id="catList">
+					<option th:each="cat: ${catList}" th:value="${cat.catName}">
+				</datalist>
+
+				<!-- Brand List -->
+				<datalist id="brandList">
+					<option th:each="brand: ${brandList}" th:value="${brand.brandName}">
+				</datalist>
+			</main>
+		</div>
+	</div>
+
+	<div th:replace="index :: common-scripts" />
+
+	<script>
+		$(document).ready(function() {
+			var table = $('#item-table').DataTable();
+		});
+	</script>
+
+	<script
+		src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js"
+		referrerpolicy="origin"></script>
+
+	<!-- Tinymce textarea decorator script -->
+	<script>
+		tinymce
+				.init({
+					selector : 'textarea',
+					height : 210,
+					menubar : false,
+					plugins : [
+							'advlist autolink lists link image charmap print preview anchor',
+							'searchreplace visualblocks code fullscreen',
+							'insertdatetime media table paste code help wordcount' ],
+					toolbar : 'undo redo | formatselect | '
+							+ 'bold italic backcolor | alignleft aligncenter '
+							+ 'alignright alignjustify | bullist numlist outdent indent | '
+							+ 'removeformat | help',
+					content_style : 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+				});
+	</script>
+
+	<!-- Item image upload preview script -->
+	<script type="text/javascript">
+		$(function() {
+			$(document).on(
+					"change",
+					".uploadFile",
+					function() {
+						var uploadFile = $(this);
+						var files = !!this.files ? this.files : [];
+						if (!files.length || !window.FileReader)
+							return; // no file selected, or no FileReader support
+
+						if (/^image/.test(files[0].type)) { // only image file
+							var reader = new FileReader(); // instance of the FileReader
+							reader.readAsDataURL(files[0]); // read the local file
+
+							reader.onloadend = function() { // set image data as background of div
+								uploadFile.closest(".imgUp").find(
+										'.imagePreview').css(
+										"background-image",
+										"url(" + this.result + ")");
+							}
+						}
+
+					});
+		});
+	</script>
+</body>

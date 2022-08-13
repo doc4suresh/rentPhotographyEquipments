@@ -1,0 +1,420 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="https://www.thymeleaf.org"
+	xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head th:fragment="common-head">
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"
+	integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+	crossorigin="anonymous">
+<link th:href="@{/css/style.css}" rel="stylesheet"
+	crossorigin="anonymous">
+<link
+	th:href="@{https://use.fontawesome.com/releases/v5.7.2/css/all.css}"
+	rel="stylesheet" crossorigin="anonymous">
+
+<!-- Data table -->
+<link th:href="@{/css/dataTables.bootstrap5.min.css}" rel="stylesheet">
+
+<title>Kodak Sale Private Limited</title>
+<link rel="icon" type="image/png" th:href="@{/assert/favicon.png}">
+</head>
+
+<body>
+
+	<div th:fragment="common-notification">
+		<!-- Toast -->
+		<!-- Toast success -->
+		<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+			<div id="successToast" class="toast" role="alert"
+				aria-live="assertive" aria-atomic="true">
+				<div class="toast-header text-white bg-success">
+					<img src="/assert/icons/like.png" class="rounded me-2" alt="...">
+					<strong class="me-auto">Success</strong> <small>now</small>
+					<button type="button" class="btn-close" data-bs-dismiss="toast"
+						aria-label="Close"></button>
+				</div>
+				<div class="toast-body" th:text="${noti.msg}"></div>
+			</div>
+		</div>
+
+		<!-- Toast Warning -->
+		<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+			<div id="warningToast" class="toast" role="alert"
+				aria-live="assertive" aria-atomic="true">
+				<div class="toast-header text-white bg-warning">
+					<img src="/assert/icons/warning.png" class="rounded me-2" alt="...">
+					<strong class="me-auto">Warning</strong> <small>now</small>
+					<button type="button" class="btn-close" data-bs-dismiss="toast"
+						aria-label="Close"></button>
+				</div>
+				<div class="toast-body" th:text="${noti.msg}"></div>
+			</div>
+		</div>
+
+		<!-- Toast Danger -->
+		<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+			<div id="errorToast" class="toast" role="alert" aria-live="assertive"
+				aria-atomic="true">
+				<div class="toast-header text-white bg-danger">
+					<img src="/assert/icons/dislike.png" class="rounded me-2" alt="...">
+					<strong class="me-auto">Error</strong> <small>now</small>
+					<button type="button" class="btn-close" data-bs-dismiss="toast"
+						aria-label="Close"></button>
+				</div>
+				<div class="toast-body" th:text="${noti.msg}"></div>
+			</div>
+		</div>
+		<!-- Toast End -->
+	</div>
+
+
+	<header th:fragment="common-header"
+		class="navbar navbar-dark sticky-top bg-warning flex-md-nowrap p-0 shadow">
+		<a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#"><img
+			alt="" src="/assert/favicon.png"> <span class="h5 ms-1">KODAK
+				SALES</span></a>
+		<button class="navbar-toggler position-absolute d-md-none collapsed"
+			type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu"
+			aria-controls="sidebarMenu" aria-expanded="false"
+			aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<div class="navbar-nav">
+			<div class="nav-item text-nowrap d-flex">
+				<h6 class="text-white mt-1 px-3 fw-bold" sec:authentication="name"></h6>
+				<a class="nav-link px-3 fw-bold" data-bs-toggle="modal"
+					data-bs-target="#usernamePassChange"><i class="fas fa-user-cog"></i></a>
+
+				<!-- Password Change Modal -->
+				<div class="modal fade" id="usernamePassChange"
+					data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="staticBackdropLabel">
+					<div class="modal-dialog modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="staticBackdropLabel">Change
+									Password</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<form class="form-floating"
+								th:action="@{/employee/changePassword}" method="POST">
+								<div class="modal-body">
+									<div class="form-floating mb-3">
+										<input type="password"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											style="border-width: 1px" id="oldPassword" name="oldPassword"
+											placeholder="Old Password" required> <label
+											for="oldPassword">Old Password *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="password"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											style="border-width: 1px" id="newPassword" name="newPassword"
+											placeholder="New Password" required
+											onkeyup="confirmChangePassword()"> <label
+											for="newPassword">New Password *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="password"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											style="border-width: 1px" id="confNewPassword"
+											placeholder="Password" required
+											onkeyup="confirmChangePassword()"> <label
+											for="confNewPassword">Confirm New Password <i
+											class="fas fa-check text-success" id="change-pass-correct"
+											style="display: none"></i><i class="fas fa-times text-danger"
+											id="change-pass-wrong" style="display: none"></i></label>
+									</div>
+
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary"
+										data-bs-dismiss="modal">Close</button>
+									<button class="btn btn-warning" id="change" type="submit"
+										disabled>Change</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<!-- Model display CSS -->
+				<style>
+.modal {
+	background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-backdrop {
+	display: none;
+}
+</style>
+
+				<!-- Password confirmation check -->
+				<script type="text/javascript">
+		function confirmChangePassword() {
+			var passInput = document.getElementById("newPassword");
+			var confInput = document.getElementById("confNewPassword");
+
+			if (passInput.value == confInput.value) {
+				document.getElementById("change").disabled = false;
+				document.getElementById("change-pass-correct").style.display = "inline";
+				document.getElementById("change-pass-wrong").style.display = "none";
+			} else {
+				document.getElementById("change").disabled = true;
+				document.getElementById("change-pass-correct").style.display = "none";
+				document.getElementById("change-pass-wrong").style.display = "inline";
+			}
+		}
+	</script>
+
+				<!-- Logout button -->
+				<a class="nav-link px-3 fw-bold" th:href="@{/logout}"
+					sec:authorize="isAuthenticated()"><i class="fas fa-power-off"></i></a>
+			</div>
+		</div>
+	</header>
+
+	<div class="container-fluid">
+		<div class="row">
+			<nav id="sidebarMenu"
+				class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+				<div class="position-sticky pt-3">
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link active"
+							aria-current="page" th:href="@{/}"> <i class="fas fa-home"></i>
+								Main Menu
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/branch}"> <i class="fas fa-store"></i> Branch
+								Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column"
+						sec:authorize="hasAnyAuthority('Admin', 'Manager')">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/employee}"> <i class="fas fa-user-tie"></i>
+								Employee Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/customer}"> <i class="fas fa-handshake"></i>
+								Customer Management
+						</a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Item</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/category"><i
+								class="fas fa-sitemap"></i> Category Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/brand"><i
+								class="fas fa-copyright"></i> Brand Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/item"><i
+								class="fas fa-camera"></i> Item Management </a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Rent</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/rent"><i
+								class="fas fa-cart-arrow-down"></i> Rent Item </a></li>
+						<li class="nav-item"><a class="nav-link" href="/return"><i
+								class="fas fa-people-carry"></i> Return Item </a></li>
+					</ul>
+
+					<div
+						sec:authorize="hasAnyAuthority('Admin', 'Manager', 'Accountant')">
+						<h6
+							class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+							<span>Report</span>
+						</h6>
+						<ul class="nav flex-column mb-2">
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByRent"><i class="fas fa-chart-line"></i>
+									Profit by Rent Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByItem"><i class="fas fa-chart-line"></i>
+									Profit by Item Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/rentReport"><i class="fas fa-file-alt"></i>
+									Rent Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/mostHiredItem"><i class="fas fa-file-alt"></i>
+									Most Hired Items </a></li>
+						</ul>
+					</div>
+
+				</div>
+			</nav>
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+				<div class="album p-5  bg-light">
+					<div class="container">
+
+						<div class="row row-cols-4 g-5 text-center">
+							<div class="col">
+								<div class="card shadow-sm tile-icon">
+									<a class="btn btn-lg" th:href="@{/branch}"><img
+										alt="Employee" src="/assert/TileIcons/branch.png">
+										<div class="card-body">
+											<h6 class="">BRANCH MANAGEMENT</h6>
+										</div></a>
+								</div>
+							</div>
+
+							<div class="col">
+								<div class="card shadow-sm tile-icon">
+									<a class="btn btn-lg" th:href="@{/employee}"><img
+										class="tile-icon mx-auto d-block" alt="Employee"
+										src="/assert/TileIcons/employee.png">
+										<div class="card-body">
+											<h6 class="">EMPLOYEE MANAGEMENT</h6>
+										</div></a>
+								</div>
+							</div>
+
+							<div class="col">
+								<div class="card shadow-sm tile-icon">
+									<a class="btn btn-lg" th:href="@{/customer}"><img
+										class="tile-icon" alt="Employee"
+										src="/assert/TileIcons/customer.png">
+										<div class="card-body">
+											<h6 class="">CUSTOMER MANAGEMENT</h6>
+										</div></a>
+								</div>
+							</div>
+
+							<div class="col">
+								<div class="card shadow-sm tile-icon">
+									<a class="btn btn-lg" th:href="@{/category}"><img
+										class="tile-icon" alt="Employee"
+										src="/assert/TileIcons/category.png">
+										<div class="card-body">
+											<h6 class="">ITEM CATEGORY MANAGEMENT</h6>
+										</div></a>
+								</div>
+							</div>
+
+							<div class="col">
+								<div class="card shadow-sm tile-icon">
+									<a class="btn btn-lg" th:href="@{/brand}"><img
+										class="tile-icon" alt="Employee"
+										src="/assert/TileIcons/brand.png">
+										<div class="card-body">
+											<h6 class="">ITEM BRAND MANAGEMENT</h6>
+										</div></a>
+								</div>
+							</div>
+
+							<div class="col">
+								<div class="card shadow-sm tile-icon">
+									<a class="btn btn-lg" th:href="@{/item}"><img
+										class="tile-icon" alt="Employee"
+										src="/assert/TileIcons/item.png">
+										<div class="card-body">
+											<h6 class="">ITEM MANAGEMENT</h6>
+										</div></a>
+								</div>
+							</div>
+
+							<div class="col">
+								<div class="card shadow-sm tile-icon">
+									<a class="btn btn-lg" th:href="@{/rent}"><img
+										class="tile-icon" alt="Employee"
+										src="/assert/TileIcons/rent.png">
+										<div class="card-body">
+											<h6 class="">RENT ITEM</h6>
+										</div></a>
+								</div>
+							</div>
+
+							<div class="col">
+								<div class="card shadow-sm tile-icon">
+									<a class="btn btn-lg" th:href="@{/return}"><img
+										class="tile-icon" alt="Employee"
+										src="/assert/TileIcons/retern.png">
+										<div class="card-body">
+											<h6 class="">RETERN ITEM</h6>
+										</div></a>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+			</main>
+		</div>
+	</div>
+
+	<div th:fragment="common-scripts">
+		<script th:src="@{/js/bootstrap.bundle.min.js}"
+			integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+			crossorigin="anonymous"></script>
+		<script th:src="@{/js/script.js}" crossorigin="anonymous"></script>
+
+		<!-- Data Table scripts -->
+		<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+		<script
+			src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+		<script
+			src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+		<script src="/js/popper.min.js"></script>
+
+		<!-- <script
+			th:src="@{https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js}"
+			integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha"
+			crossorigin="anonymous"></script> -->
+
+		<script th:inline="javascript">
+    	/*<![CDATA[*/
+      		var successToast = /*[[${noti.type} == 'SUCCESS' ? true:false]]*/ false;
+      		var warningToast = /*[[${noti.type} == 'WARNING' ? true:false]]*/ false;
+      		var errorToast = /*[[${noti.type} == 'ERROR' ? true:false]]*/ false;
+
+      		if(successToast){
+    	  		var toastElList = [].slice.call(document.querySelectorAll('#successToast'))
+          		var toastList = toastElList.map(function(toastEl) {
+            	return new bootstrap.Toast(toastEl)
+          		});
+         		toastList.forEach(toast => toast.show());
+      		}
+      		
+      		if(warningToast){
+    	  		var toastElList = [].slice.call(document.querySelectorAll('#warningToast'))
+          		var toastList = toastElList.map(function(toastEl) {
+            	return new bootstrap.Toast(toastEl)
+          		});
+         		toastList.forEach(toast => toast.show());
+      		}
+      		
+      		if(errorToast){
+    	  		var toastElList = [].slice.call(document.querySelectorAll('#errorToast'))
+          		var toastList = toastElList.map(function(toastEl) {
+            	return new bootstrap.Toast(toastEl)
+          		});
+         		toastList.forEach(toast => toast.show());
+      		}
+    	/*]]>*/
+    	</script>
+	</div>
+</body>
+</html>

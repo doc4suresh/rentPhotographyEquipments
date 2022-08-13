@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="index :: common-head" />
+
+<body>
+
+	<!-- Stepper Style -->
+	<style>
+.steps {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 2rem;
+	position: relative;
+}
+
+.step-button {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	border: none;
+	background-color: var(- -prm-gray);
+	transition: .4s;
+}
+
+.step-button[aria-expanded="true"] {
+	width: 40px;
+	height: 40px;
+	background-color: #f3da05;
+	color: #fff;
+}
+
+.done {
+	background-color: #f3da05;
+	color: #fff;
+}
+
+.step-item {
+	z-index: 10;
+	text-align: center;
+}
+
+#progress {
+	-webkit-appearance: none;
+	position: absolute;
+	width: 98%;
+	z-index: 5;
+	height: 5px;
+	margin-left: 20px;
+	margin-bottom: 18px;
+}
+/* to customize progress bar */
+#progress::-webkit-progress-value {
+	background-color: #f3da05;
+	transition: .5s ease;
+}
+
+#progress::-webkit-progress-bar {
+	background-color: var(- -prm-gray);
+}
+</style>
+	<!-- Stepper Style End -->
+
+
+	<div th:replace="index :: common-notification"></div>
+
+	<header th:replace="index :: common-header" />
+
+	<div class="container-fluid">
+		<div class="row">
+			<nav id="sidebarMenu"
+				class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+				<div class="position-sticky pt-3">
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/}"> <i class="fas fa-home"></i> Main Menu
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/branch}"> <i class="fas fa-store"></i> Branch
+								Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column"
+						sec:authorize="hasAnyAuthority('Admin', 'Manager')">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/employee}"> <i class="fas fa-user-tie"></i>
+								Employee Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/customer}"> <i class="fas fa-handshake"></i>
+								Customer Management
+						</a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Item</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/category"><i
+								class="fas fa-sitemap"></i> Category Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/brand"><i
+								class="fas fa-copyright"></i> Brand Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/item"><i
+								class="fas fa-camera"></i> Item Management </a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Rent</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link active" href="/rent"><i
+								class="fas fa-cart-arrow-down"></i> Rent Item </a></li>
+					</ul>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/return"><i
+								class="fas fa-people-carry"></i> Return Item </a></li>
+					</ul>
+
+					<div
+						sec:authorize="hasAnyAuthority('Admin', 'Manager', 'Accountant')">
+						<h6
+							class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+							<span>Report</span>
+						</h6>
+						<ul class="nav flex-column mb-2">
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByRent"><i class="fas fa-chart-line"></i>
+									Profit by Rent Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByItem"><i class="fas fa-chart-line"></i>
+									Profit by Item Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/rentReport"><i class="fas fa-file-alt"></i>
+									Rent Report </a></li>
+						</ul>
+					</div>
+
+				</div>
+			</nav>
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+				<br>
+				<!-- Stepper Start -->
+				<div class="container">
+					<div class="accordion" id="accordionExample">
+						<div class="steps">
+							<progress id="progress" value=0 max=100></progress>
+							<div class="step-item">
+								<button class="step-button text-center" type="button"
+									data-bs-toggle="collapse" data-bs-target="#collapseOne"
+									aria-expanded="true" aria-controls="collapseOne">1</button>
+								<div class="step-title">Items</div>
+							</div>
+							<div class="step-item">
+								<button class="step-button text-center collapsed" type="button"
+									data-bs-toggle="collapse" data-bs-target="#collapseTwo"
+									aria-expanded="false" aria-controls="collapseTwo">2</button>
+								<div class="step-title">Cart</div>
+							</div>
+							<div class="step-item">
+								<button class="step-button text-center collapsed" type="button"
+									data-bs-toggle="collapse" data-bs-target="#collapseThree"
+									aria-expanded="false" aria-controls="collapseThree">3
+								</button>
+								<div class="step-title">Rent</div>
+							</div>
+						</div>
+
+						<div class="card border-0">
+							<div id="headingOne"></div>
+							<div id="collapseOne" class="collapse"
+								th:classappend="${#lists.isEmpty(cartItemList) || itemPage} ? show"
+								aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+
+								<div
+									class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+									<h2>Select Items</h2>
+								</div>
+
+								<!-- item table filter -->
+								<form class="form-floating" th:action="@{/rent/rentItemsFilter}"
+									method="POST">
+									<div class="row g-3 mb-3">
+										<div class="col-md">
+											<div class="form-floating">
+												<select
+													class="form-select border-top-0 border-start-0 border-end-0"
+													id="category" name="category" aria-label="Category">
+													<option value="Any">Any</option>
+													<option th:each="cat : ${catList}"
+														th:value="${cat.catName}" th:text="${cat.catName}"
+														th:selected="${cat.catName == filter.category}">
+												</select> <label for="category">Category</label>
+											</div>
+										</div>
+										<div class="col-md">
+											<div class="form-floating">
+												<select
+													class="form-select border-top-0 border-start-0 border-end-0"
+													id="brand" name="brand" aria-label="Brand">
+													<option value="Any">Any</option>
+													<option th:each="brand : ${brandList}"
+														th:value="${brand.brandName}" th:text="${brand.brandName}"
+														th:selected="${brand.brandName == filter.brand}">
+												</select> <label for="brand">Brand</label>
+											</div>
+										</div>
+										<div class="col-md">
+											<div class="form-floating">
+												<select
+													class="form-select border-top-0 border-start-0 border-end-0"
+													id="stock" name="stock" aria-label="Stock">
+													<option th:selected="${filter.stock == 'All'}" value="All">All</option>
+													<option th:selected="${filter.stock == 'In Stock'}"
+														value="In Stock">In Stock</option>
+													<option th:selected="${filter.stock == 'Out of Stock'}"
+														value="Out of Stock">Out of Stock</option>
+												</select> <label for="stock">Stock</label>
+											</div>
+										</div>
+										<div class="col-md-2 d-grid gap-1 mx-auto">
+											<button type="submit" class="btn btn-outline-warning btn-sm">Filter</button>
+											<button type="reset"
+												class="btn btn-outline-secondary btn-sm">Clear</button>
+										</div>
+									</div>
+								</form>
+								<hr>
+
+								<!-- Item table -->
+								<table id="rent-items" style="width: 100%;">
+									<thead>
+										<tr>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr data-th-each="item : ${itemList}">
+											<td>
+												<div class="card mb-3 shadow border-0">
+													<div class="row align-items-start mt-3 mb-3">
+														<div class="col-3">
+															<img th:src="${item.itemImg}" alt="..."
+																class="mx-auto d-block" style="width: 170px;">
+														</div>
+														<div class="col-7">
+															<h5>
+																<span class="fw-bolder"
+																	th:text="${item.brand.brandName + ' ' + item.itemName}"></span>
+															</h5>
+															<p class="text-muted" th:text="${item.itemCode}"></p>
+															<h6 class="fw-bolder">Key Features</h6>
+															<p th:utext="${item.keyFeatures}"></p>
+														</div>
+														<div class="col-2">
+															<h6 th:if="${item.available > 0}"
+																class="text-success mt-3 mb-3">
+																<i class="fas fa-check"></i> <span
+																	th:text="${item.available}"></span> In Stock
+															</h6>
+															<h6 th:if="${item.available < 1}"
+																class="text-danger mt-3 mb-3">
+																<i class="fas fa-times"></i> Out of Stock
+															</h6>
+															<div class="d-grid gap-2 col-10">
+																<button
+																	th:classappend="${item.available < 1} ? disabled"
+																	type="button" class="btn btn-warning"
+																	data-bs-toggle="modal"
+																	th:attr="data-bs-target='#itemRentModal'+${item.id}">Rent
+																	This</button>
+																<!-- Item rent model need to put inside of the row. otherwise Item id will null -->
+																<div th:replace="rentModal :: rent-modal" />
+
+
+																<button type="button" class="btn btn-outline-secondary"
+																	data-bs-toggle="modal"
+																	th:attr="data-bs-target='#itemDetailModal'+${item.id}">View
+																	Item</button>
+
+																<!-- Item Details model need to put inside of the row. otherwise Item id will null -->
+																<div th:replace="itemDetails :: item" />
+															</div>
+														</div>
+													</div>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div class="card border-0">
+							<div id="headingTwo"></div>
+							<div id="collapseTwo" class="collapse"
+								th:classappend="${!#lists.isEmpty(cartItemList) && cartItemList[0].rent == null && !itemPage} ? show"
+								aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+								<div class="card-body">
+									<div
+										class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+										<h2>Item Cart</h2>
+									</div>
+									<div class="card mb-3 shadow border-0"
+										data-th-each="cart : ${cartItemList}">
+										<div class="row align-items-start mt-3 mb-3">
+											<div class="col-2">
+												<img th:src="${cart.item.itemImg}" alt="..."
+													class="mx-auto d-block" style="width: 100px;">
+											</div>
+											<div class="col-4">
+												<p class="fw-bolder"
+													th:text="${cart.item.brand.brandName + ' ' + cart.item.itemName}"></p>
+												<p class="text-muted" th:text="${cart.item.itemCode}"></p>
+											</div>
+											<div class="col-4">
+												<table class="w-100">
+													<thead>
+														<tr>
+															<th scope="col"></th>
+															<th scope="col">Price for a day</th>
+															<th scope="col">Deposit for a day</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td><p>1 - 2 Days:</p></td>
+															<td>
+																<p class="text-danger">
+																	Rs. <span
+																		th:text="${#numbers.formatDecimal(cart.item.rentPrice1To2Days, 0,'COMMA',2,'POINT')}"></span>
+																</p>
+															</td>
+															<td>
+																<p class="text-danger">
+																	Rs. <span
+																		th:text="${#numbers.formatDecimal(cart.item.deposit1To2Days, 0,'COMMA',2,'POINT')}"></span>
+																</p>
+															</td>
+														</tr>
+														<tr>
+															<td><p>3 - 4 Days:</p></td>
+															<td>
+																<p class="text-danger">
+																	Rs. <span
+																		th:text="${#numbers.formatDecimal(cart.item.rentPrice3To4Days, 0,'COMMA',2,'POINT')}"></span>
+																</p>
+															</td>
+															<td>
+																<p class="text-danger">
+																	Rs. <span
+																		th:text="${#numbers.formatDecimal(cart.item.deposit3To4Days, 0,'COMMA',2,'POINT')}"></span>
+																</p>
+															</td>
+														</tr>
+														<tr>
+															<td><p>More than 4 Days:</p></td>
+															<td>
+																<p class="text-danger">
+																	Rs. <span
+																		th:text="${#numbers.formatDecimal(cart.item.rentPrice5Days, 0,'COMMA',2,'POINT')}"></span>
+																</p>
+															</td>
+															<td>
+																<p class="text-danger">
+																	Rs. <span
+																		th:text="${#numbers.formatDecimal(cart.item.deposit5Days, 0,'COMMA',2,'POINT')}"></span>
+																</p>
+															</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+											<div class="col-1">
+												<form class="form-floating"
+													th:action="@{/rent/updateItemQty}" method="POST">
+													<input id="item" name="item" th:value="${cart.item.id}"
+														hidden> <input type="number"
+														class="form-control border-top-0 border-start-0 border-end-0"
+														id="qty" name="qty" th:value="${cart.qty}"
+														placeholder="Qty."
+														th:attr="onchange=|showUpdate('${cart.id}')|"
+														th:max="${cart.item.qty}" th:min="1" required> <label
+														for="qty">Qty.</label>
+											</div>
+											<div class="col-1">
+												<div class="d-grid gap-2 me-2">
+													<button type="submit" th:id="'update-'+${cart.id}"
+														class="btn btn-warning btn-sm d-none" style="width: 65px">Update</button>
+													</form>
+													<form th:action="@{/rent/deleteCartItem}" method="POST">
+														<input id="cartId" name="cartId" th:value="${cart.id}"
+															hidden>
+														<button type="submit" class="btn btn-danger btn-sm"
+															style="width: 65px">Delete</button>
+													</form>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="card border-0">
+							<div id="headingThree"></div>
+							<div id="collapseThree" class="collapse"
+								th:classappend="${!#lists.isEmpty(cartItemList) && cartItemList[0].rent != null && !itemPage} ? show"
+								aria-labelledby="headingThree"
+								data-bs-parent="#accordionExample">
+								<div class="card-body">
+									<p class="fs-3 text-danger">Customer Details:</p>
+									<hr>
+									<div class="bg-light p-3 mb-3">
+										<p>Search Customer</p>
+										<div class="row g-3">
+											<div class="col-md">
+												<div class="form-floating">
+													<input type="text"
+														class="form-control border-top-0 border-start-0 border-end-0 bg-light"
+														id="cusNameSearch" name="cusNameSearch" list="cusNameList"
+														placeholder="By Name" onkeyup="getCusNames()"
+														onchange="getCustomerByName()"> <label
+														for="cusNameSearch">By Name</label>
+												</div>
+											</div>
+											<div class="col-md">
+												<div class="form-floating">
+													<input type="text"
+														class="form-control border-top-0 border-start-0 border-end-0 bg-light"
+														id="cusPhoneSearch" name="cusPhoneSearch"
+														list="cusPhoneList" placeholder="By Phone Number"
+														onkeyup="getCusPhone()" onchange="getCustomerByPhone()">
+													<label for="cusPhoneSearch">By Phone Number</label>
+												</div>
+											</div>
+											<div class="col-md">
+												<div class="form-floating">
+													<input type="text"
+														class="form-control border-top-0 border-start-0 border-end-0 bg-light"
+														id="cusNicSearch" name="cusNicSearch" list="cusNicList"
+														placeholder="By NIC" onkeyup="getCusNic()"
+														onchange="getCustomerByNic()"> <label
+														for="cusNicSearch">By NIC</label>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-3">
+											<p>Customer:</p>
+											<h6 id="cusName"
+												th:text="${rent?.customer != null ? rent.customer.firstName + ' ' + rent.customer.lastName : ''}"></h6>
+										</div>
+										<div class="col-3">
+											<p>Phone Number:</p>
+											<h6 id="cusPhone" th:text="${rent?.customer?.mobile}"></h6>
+										</div>
+										<div class="col-3">
+											<p>NIC:</p>
+											<h6 id="cusNIC" th:text="${rent?.customer?.nic}"></h6>
+										</div>
+										<div class="col-3">
+											<p>Billing Address:</p>
+											<h6 id="cusAddress"
+												th:text="${rent?.customer?.billingAddress}"></h6>
+										</div>
+									</div>
+									<br>
+									<p class="fs-3 text-danger">Renting Dates:</p>
+									<hr>
+									<form class="form-floating" th:action="@{/rent/rentDetails}"
+										method="POST">
+										<div class="row">
+											<div class="col-4">
+												<label for="startDate"
+													class="col-form-label col-form-label-sm">Start
+													Date:</label> <input type="date"
+													class="form-control form-control-sm" id="startDate"
+													name="startDate" th:value="${rent?.startDate}"
+													onchange="setEndDateMin(event);" required />
+											</div>
+											<div class="col-4">
+												<label for="endDate"
+													class="col-form-label col-form-label-sm">End Date:</label>
+												<input type="date" class="form-control form-control-sm"
+													id="endDate" name="endDate" th:value="${rent?.endDate}"
+													required />
+											</div>
+											<input type="text" id="cusId" name="cusId" hidden>
+											<div class="col-4 align-self-end">
+												<button type="submit" class="btn btn-warning btn-sm">Populate
+													Cart Details</button>
+											</div>
+										</div>
+									</form>
+									<br>
+									<div th:if="${rent?.grandTotal != null}">
+										<p class="fs-3 text-danger">Cart Details:</p>
+										<hr>
+										<div class="card bg-light border-0 mt-3"
+											data-th-each="cart : ${cartItemList}">
+											<div class="row mt-3 mb-3">
+												<div class="col-2">
+													<img th:src="${cart.item.itemImg}" alt="..."
+														class="mx-auto d-block rounded-circle"
+														style="width: 100px;">
+												</div>
+												<div class="col-3">
+													<p class="fw-bolder"
+														th:text="${cart.item.brand.brandName + ' ' + cart.item.itemName}"></p>
+													<p class="text-muted" th:text="${cart?.item?.itemCode}"></p>
+												</div>
+												<div class="col-7">
+													<div class="row">
+														<div class="col-3">
+															<div class="row">
+																<div class="col-6">
+																	<p class="text-muted">Qty:</p>
+																	<p class="fw-bolder" th:text="${cart.qty}"></p>
+																</div>
+																<div class="col-6">
+																	<p class="text-muted">Days:</p>
+																	<p class="fw-bolder" th:text="${cart.days}"></p>
+																</div>
+															</div>
+														</div>
+														<div class="col-3 text-end">
+															<p class="text-muted">Rent Price</p>
+															<small class="text-muted">Q: <span
+																th:text="${cart.qty}"></span> * D: <span
+																th:text="${cart.days}"></span> * Rs.<span
+																th:text="${cart.days > 4 ? cart.item.rentPrice5Days : (cart.days > 2 ? cart.item.rentPrice3To4Days : cart.item.rentPrice1To2Days)}"></span>
+															</small>
+															<p class="fw-bolder"
+																th:text="${#numbers.formatDecimal(cart?.subRentTotal, 0,'COMMA',2,'POINT')}"></p>
+														</div>
+														<div class="col-3 text-end">
+															<p class="text-muted">Deposit</p>
+															<small class="text-muted">Q: <span
+																th:text="${cart.qty}"></span> * D: <span
+																th:text="${cart.days}"></span> * Rs.<span
+																th:text="${cart.days > 4 ? cart.item.deposit5Days : (cart.days > 2 ? cart.item.deposit3To4Days : cart.item.deposit1To2Days)}"></span>
+															</small>
+															<p class="fw-bolder"
+																th:text="${#numbers.formatDecimal(cart?.subDepositTotal, 0,'COMMA',2,'POINT')}"></p>
+														</div>
+														<div class="col-3 text-end pe-5">
+															<p class="text-muted">Sub Total</p>
+															<p class="fw-bolder"
+																th:text="${#numbers.formatDecimal(cart?.subTotal, 0,'COMMA',2,'POINT')}"></p>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="card bg-light border-0 mt-3 mb-3">
+											<div class="row mt-3 mb-3">
+												<div class="col-5"></div>
+												<div class="col-7">
+													<div class="row">
+														<div class="col-3 align-self-end text-end">
+															<p class="fw-bolder">Grand Total</p>
+														</div>
+														<div class="col-3 text-end">
+															<p class="text-muted">Rent Total</p>
+															<p class="fw-bolder"
+																th:text="${#numbers.formatDecimal(rent?.grandRentTotal, 0,'COMMA',2,'POINT')}"></p>
+														</div>
+														<div class="col-3 text-end">
+															<p class="text-muted">Deposit Total</p>
+															<p class="fw-bolder"
+																th:text="${#numbers.formatDecimal(rent?.grandDepositTotal, 0,'COMMA',2,'POINT')}"></p>
+														</div>
+														<div class="col-3 text-end pe-5">
+															<p class="text-muted">Total</p>
+															<p class="fw-bolder"
+																th:text="${#numbers.formatDecimal(rent?.grandTotal, 0,'COMMA',2,'POINT')}"></p>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+											<a class="btn btn-outline-danger" type="button" role="button"
+												href="/rent/cancelRentJob">Cancel Rent Job</a> <a
+												class="btn btn-warning" type="button" role="button"
+												href="/rent/completeRentJob">Complete Rent Job</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Stepper End -->
+
+			</main>
+		</div>
+	</div>
+
+	<!-- Customer Name List -->
+	<datalist id="cusNameList">
+		<option value="">Type a the Customer Name</option>
+	</datalist>
+
+	<!-- Customer Mobile List -->
+	<datalist id="cusPhoneList">
+		<option value="">Type a the Customer Mobile Number</option>
+	</datalist>
+
+	<!-- Customer NIC List -->
+	<datalist id="cusNicList">
+		<option value="">Type a the Customer NIC</option>
+	</datalist>
+
+
+	<div th:replace="index :: common-scripts" />
+
+	<!-- Table pagination sort and search -->
+	<script>
+		$(document).ready(function() {
+			var table = $('#rent-items').DataTable();
+		});
+	</script>
+
+	<!-- Stepper JavaScript -->
+	<script>
+		const stepButtons = document.querySelectorAll('.step-button');
+		const progress = document.querySelector('#progress');
+
+		Array.from(stepButtons).forEach((button,index) => {
+    		button.addEventListener('click', () => {
+       			 progress.setAttribute('value', index * 100 /(stepButtons.length - 1) );
+
+        		stepButtons.forEach((item, secindex)=>{
+            		if(index > secindex){
+                		item.classList.add('done');
+            		}
+            		if(index < secindex){
+                		item.classList.remove('done');
+            		}
+        		})
+    		})
+		})
+	</script>
+
+	<!-- Ajax call for get Customer name list -->
+	<script>
+		function getCusNames() {
+			var input = $("#cusNameSearch").val();
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					$("#cusNameList").empty();
+					var select = document.getElementById("cusNameList");
+					var data = JSON.parse(this.responseText);
+					for (var i = 0; i < data.length; i++) {
+						var opt = data[i];
+						var el = document.createElement("option");
+						el.value = opt;
+						select.appendChild(el);
+					}
+
+				}
+			};
+			xhttp.open("GET", "rent/ajaxCustomerName?q=" + input, true);
+			xhttp.send();
+		}
+	</script>
+
+	<!-- Ajax call for get Customer mobile list -->
+	<script>
+		function getCusPhone() {
+			var input = $("#cusPhoneSearch").val();
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					$("#cusPhoneList").empty();
+					var select = document.getElementById("cusPhoneList");
+					var data = JSON.parse(this.responseText);
+					for (var i = 0; i < data.length; i++) {
+						var opt = data[i];
+						var el = document.createElement("option");
+						el.value = opt;
+						select.appendChild(el);
+					}
+
+				}
+			};
+			xhttp.open("GET", "rent/ajaxCustomerPhone?q=" + input, true);
+			xhttp.send();
+		}
+	</script>
+
+	<!-- Ajax call for get Customer NIC list -->
+	<script>
+		function getCusNic() {
+			var input = $("#cusNicSearch").val();
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					$("#cusNicList").empty();
+					var select = document.getElementById("cusNicList");
+					var data = JSON.parse(this.responseText);
+					for (var i = 0; i < data.length; i++) {
+						var opt = data[i];
+						var el = document.createElement("option");
+						el.value = opt;
+						select.appendChild(el);
+					}
+
+				}
+			};
+			xhttp.open("GET", "rent/ajaxCustomerNic?q=" + input, true);
+			xhttp.send();
+		}
+	</script>
+
+	<!-- Ajax call for get Customer by Name -->
+	<script>
+		function getCustomerByName() {
+			var input = $("#cusNameSearch").val();
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					var data = JSON.parse(this.responseText);
+					document.getElementById("cusName").innerHTML = data.firstName + ' ' + data.lastName;
+					document.getElementById("cusPhone").innerHTML = data.mobile;
+					document.getElementById("cusNIC").innerHTML = data.nic;
+					document.getElementById("cusAddress").innerHTML = data.billingAddress;
+					document.getElementById("cusId").value = data.id;
+				}
+			};
+			xhttp.open("GET", "rent/ajaxCustomerByName?cusName=" + input, true);
+			xhttp.send();
+		}
+	</script>
+
+	<!-- Ajax call for get Customer by Phone -->
+	<script>
+		function getCustomerByPhone() {
+			var input = $("#cusPhoneSearch").val();
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					var data = JSON.parse(this.responseText);
+					document.getElementById("cusName").innerHTML = data.firstName + ' ' + data.lastName;
+					document.getElementById("cusPhone").innerHTML = data.mobile;
+					document.getElementById("cusNIC").innerHTML = data.nic;
+					document.getElementById("cusAddress").innerHTML = data.billingAddress;
+					document.getElementById("cusId").value = data.id;
+				}
+			};
+			xhttp.open("GET", "rent/ajaxCustomerByPhone?cusPhone=" + input, true);
+			xhttp.send();
+		}
+	</script>
+
+	<!-- Ajax call for get Customer by Nic -->
+	<script>
+		function getCustomerByNic() {
+			var input = $("#cusNicSearch").val();
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					var data = JSON.parse(this.responseText);
+					document.getElementById("cusName").innerHTML = data.firstName + ' ' + data.lastName;
+					document.getElementById("cusPhone").innerHTML = data.mobile;
+					document.getElementById("cusNIC").innerHTML = data.nic;
+					document.getElementById("cusAddress").innerHTML = data.billingAddress;
+					document.getElementById("cusId").value = data.id;
+				}
+			};
+			xhttp.open("GET", "rent/ajaxCustomerByNic?cusNic=" + input, true);
+			xhttp.send();
+		}
+	</script>
+
+	<!-- Show hide update button for cart item qty update -->
+	<script type="text/javascript">
+		function showUpdate(cartId){
+			var update = document.getElementById('update-'+cartId)
+			update.classList.remove('d-none');
+			update.classList.add('d-inline');
+		}
+	</script>
+
+	<!-- Set rent end date min value to selected start value -->
+	<script type="text/javascript">
+		function setEndDateMin(event){
+			document.getElementById("endDate").value = '';
+			document.getElementById("endDate").setAttribute("min", event.target.value);
+		}
+	</script>
+</body>

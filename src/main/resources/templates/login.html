@@ -1,0 +1,88 @@
+<html>
+<head>
+<link href="/css/bootstrap.min.css" rel="stylesheet"
+	integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+	crossorigin="anonymous">
+<!-- Custom styles for this template -->
+<link href="/css/signin.css" rel="stylesheet">
+
+<title>Kodak Sale Private Limited</title>
+<link rel="icon" type="image/png" href="/assert/favicon.png">
+</head>
+
+<body>
+
+	<main class="form-signin text-center">
+		<div class="shadow p-5 mb-5 bg-body rounded" style="width: 25rem;">
+			<form th:action="@{/login}" method="post">
+				<img class="mb-4" src="/assert/kodakLogo.svg" alt="" width="72"
+					height="57">
+				<h3 class="mb-3 fw-normal">Please sign in</h3>
+
+				<div class="form-floating">
+					<input type="text"
+						class="form-control border-top-0 border-start-0 border-end-0"
+						id="username" name="username" placeholder="Username"> <label
+						for="floatingInput">Username</label>
+				</div>
+
+				<div class="form-floating">
+					<input type="password"
+						class="form-control border-top-0 border-start-0 border-end-0"
+						id="password" name="password" placeholder="Password"> <label
+						for="floatingPassword">Password</label>
+				</div>
+
+				<div th:if="${param.error != null}"
+					class="badge bg-danger text-wrap mb-1">Incorrect username or
+					password. Please try again</div>
+				<div id="capsText" class="badge bg-danger text-wrap mb-1 d-none">*Caps
+					Lock is on.</div>
+
+				<div class="checkbox mb-3">
+					<label> <input type="checkbox" value="remember-me">
+						Remember me
+					</label>
+				</div>
+
+				<button class="w-100 btn btn-lg btn-warning" type="submit">Sign
+					in</button>
+
+				<button class="mt-1 w-100 btn btn-lg btn-secondary" type="reset">Clear</button>
+
+				<p class="mt-5 mb-3 text-muted">&copy; All Reserved to Kodak
+					Sale Private Limited - 2022</p>
+			</form>
+		</div>
+	</main>
+
+	<script src="/js/bootstrap.bundle.min.js"
+		integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+		crossorigin="anonymous"></script>
+	<script src="/js/script.js" crossorigin="anonymous"></script>
+	<script src="/js/popper.min.js" crossorigin="anonymous"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+
+	<!-- Caps Lock on check -->
+	<script language="Javascript">
+		// Get the input field
+		var input = document.getElementById("password");
+
+		// Get the warning text
+		var text = document.getElementById("capsText");
+
+		// When the user presses any key on the keyboard, run the function
+		input.addEventListener("keyup", function(event) {
+
+			// If "caps lock" is pressed, display the warning text
+			if (event.getModifierState("CapsLock")) {
+				text.classList.remove("d-none");
+			} else {
+				text.classList.add("d-none");
+			}
+		});
+	</script>
+
+</body>
+</html>

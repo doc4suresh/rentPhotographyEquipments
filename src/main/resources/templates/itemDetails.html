@@ -1,0 +1,771 @@
+<div th:fragment="item" class="modal fade"
+	th:id="'itemDetailModal'+${item.id}" data-bs-backdrop="static"
+	data-bs-keyboard="false" aria-labelledby="itemDetailModalLabel"
+	aria-hidden="true">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="itemDetailModalLabel">Item Details
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"
+					aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="row align-items-start mt-3 mb-3 ms-5 me-5">
+					<div class="col-6 shadow">
+						<img th:src="${item.itemImg}" alt="..." class="mx-auto d-block"
+							style="width: 400px;">
+					</div>
+					<div class="col-6">
+						<div class="ms-5">
+							<h4>
+								<span class="fw-bolder"
+									th:text="${item.brand.brandName + ' ' + item.itemName}"></span>
+							</h4>
+							<h6 class="text-muted" th:text="${item.itemCode}"></h6>
+							<h6 th:if="${item.available > 0}" class="text-success mt-3">
+								<i class="fas fa-check"></i> <span th:text="${item.available}"></span>
+								In Stock
+							</h6>
+							<h6 th:if="${item.available < 1}" class="text-danger mt-3">
+								<i class="fas fa-times"></i> Out of Stock
+							</h6>
+
+							<table class="w-100">
+								<thead>
+									<tr>
+										<th scope="col"></th>
+										<th scope="col">Price for a day</th>
+										<th scope="col">Deposit for a day</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>1 - 2 Days:</td>
+										<td>
+											<h6 class="text-danger">
+												Rs. <span
+													th:text="${#numbers.formatDecimal(item.rentPrice1To2Days, 0,'COMMA',2,'POINT')}"></span>
+											</h6>
+										</td>
+										<td>
+											<h6 class="text-danger">
+												Rs. <span
+													th:text="${#numbers.formatDecimal(item.deposit1To2Days, 0,'COMMA',2,'POINT')}"></span>
+											</h6>
+										</td>
+									</tr>
+									<tr>
+										<td>3 - 4 Days:</td>
+										<td>
+											<h6 class="text-danger">
+												Rs. <span
+													th:text="${#numbers.formatDecimal(item.rentPrice3To4Days, 0,'COMMA',2,'POINT')}"></span>
+											</h6>
+										</td>
+										<td>
+											<h6 class="text-danger">
+												Rs. <span
+													th:text="${#numbers.formatDecimal(item.deposit3To4Days, 0,'COMMA',2,'POINT')}"></span>
+											</h6>
+										</td>
+									</tr>
+									<tr>
+										<td>More than 4 Days:</td>
+										<td>
+											<h6 class="text-danger">
+												Rs. <span
+													th:text="${#numbers.formatDecimal(item.rentPrice5Days, 0,'COMMA',2,'POINT')}"></span>
+											</h6>
+										</td>
+										<td>
+											<h6 class="text-danger">
+												Rs. <span
+													th:text="${#numbers.formatDecimal(item.deposit5Days, 0,'COMMA',2,'POINT')}"></span>
+											</h6>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+							<br>
+							<h6 class="fw-bolder">Key Features</h6>
+							<p th:utext="${item?.keyFeatures}"></p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Overview & Specs tabs -->
+				<div class="ms-5 me-5">
+					<div class="accordion accordion-flush" id="accordionFlushExample">
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="flush-headingOne">
+								<button
+									class="
+								accordion-button 
+								collapsed
+      							fw-bold
+      							text-warning
+      							border-bottom border-danger
+								"
+									type="button" data-bs-toggle="collapse"
+									data-bs-target="#overview" aria-expanded="false"
+									aria-controls="overview">OVERVIEW</button>
+							</h2>
+							<div id="overview" class="accordion-collapse collapse"
+								aria-labelledby="flush-headingOne"
+								data-bs-parent="#accordionFlushExample">
+								<div class="accordion-body">
+									<!-- Overview -->
+									<h2>Overview</h2>
+									<p th:utext="${item?.overview}"></p>
+								</div>
+							</div>
+						</div>
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="flush-headingTwo">
+								<button
+									class="
+								accordion-button 
+								collapsed
+								block
+      							fw-bold
+      							text-warning
+      							border-bottom border-danger
+								"
+									type="button" data-bs-toggle="collapse" data-bs-target="#specs"
+									aria-expanded="false" aria-controls="specs">SPECS</button>
+							</h2>
+							<div id="specs" class="accordion-collapse collapse"
+								aria-labelledby="flush-headingTwo"
+								data-bs-parent="#accordionFlushExample">
+								<div class="accordion-body">
+									<!-- Specs -->
+									<div th:if="${item.Item3dObjectDetection != null}">
+										<p class="fs-3 text-danger">3D Object Detection</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Operating Range</th>
+													<td class="col-sm-8"
+														th:utext="${item.Item3dObjectDetection.operatingRange}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemBattery != null}">
+										<p class="fs-3 text-danger">Battery</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Chemistry</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemBattery.chemistry}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Capacity</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemBattery.capacity}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Configuration</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemBattery.configuration}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Operating Temperature</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemBattery.batteryOperatingTemperature}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemCameraSpecs != null}">
+										<p class="fs-3 text-danger">Camera</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Sensor</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemCameraSpecs.sensor}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Effective Pixels</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemCameraSpecs.effectivePixels}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Lens Field of View</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemCameraSpecs.lensFieldofView}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Aperture</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemCameraSpecs.aperture}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Minimum Focusing
+														Distance</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemCameraSpecs.minimumFocusingDistance}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Photo ISO Range</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemCameraSpecs.photoISORange}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Electronic Shutter
+														Speed</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemCameraSpecs.electronicShutterSpeed}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Photo Format</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemCameraSpecs.photoFormat}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Video Format</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemCameraSpecs.videoFormat}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemCharger != null}">
+										<p class="fs-3 text-danger">Charger</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">AC Input Power</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemCharger.acInputPower}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Output Voltage</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemCharger.outputVoltage}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Power Rating</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemCharger.powerRating}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemExposureControl != null}">
+										<p class="fs-3 text-danger">Exposure Control</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Exposure Control</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemExposureControl.exposureControl}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Exposure Flash Modes</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemExposureControl.exposureFlashModes}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">ISO Sensitivity</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemExposureControl.isoSensitivity}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Metering Method</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemExposureControl.meteringMethod}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Exposure Modes</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemExposureControl.exposureModes}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Exposure Compensation</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemExposureControl.exposureCompensation}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Metering Range</th>
+													<td th:utext="${item.itemExposureControl.meteringRange}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">White Balance</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemExposureControl.whiteBalance}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Self Timer</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemExposureControl.selfTimer}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Shutter Speed</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemExposureControl.shutterSpeed}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Continuous Shooting</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemExposureControl.continuousShooting}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemFlash != null}">
+										<p class="fs-3 text-danger">Flash</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Built In Flash</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemFlash.builtInFlash}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Dedicated Flash
+														System</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemFlash.dedicatedFlashSystem}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">External Flash
+														Connection</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemFlash.externalFlashConnection}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Flash Modes</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemFlash.flashModes}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Maximum Sync Speed</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemFlash.maximumSyncSpeed}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Flash Compensation</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemFlash.flashCompensation}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemFlightControlSystem != null}">
+										<p class="fs-3 text-danger">Flight Control System</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">GNSS Support</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemFlightControlSystem.gnssSupport}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemFocus != null}">
+										<p class="fs-3 text-danger">Focus</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Focus Type</th>
+													<td class="col-sm-8" th:utext="${item.itemFocus.focusType}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Focus Mode</th>
+													<td class="col-sm-8" th:utext="${item.itemFocus.focusMode}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Auto Focus Points</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemFocus.autofocusPoints}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Auto Focus
+														Sensitivity</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemFocus.autofocusSensitivity}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemImaging != null}">
+										<p class="fs-3 text-danger">Imaging</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Lens Mount</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemImaging.lensMount}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Camera Format</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemImaging.cameraFormat}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Pixels</th>
+													<td class="col-sm-8" th:utext="${item.itemImaging.pixels}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Maximum Resolution</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemImaging.maximumResolution}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Aspect Ratio</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemImaging.aspectRatio}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Sensor Type</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemImaging.sensorType}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Sensor Size</th>
+													<td th:utext="${item.itemImaging.sensorSize}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Image File Format</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemImaging.imageFileFormat}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Bit Depth</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemImaging.bitDepth}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Image Stabilization</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemImaging.imageStabilization}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemInterface != null}">
+										<p class="fs-3 text-danger">Interface</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Memory Card Slot</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemInterface.memoryCardSlot}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Interface
+														Connectivity</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemInterface.interfaceConnectivity}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Wireless</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemInterface.wireless}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemPerformance != null}">
+										<p class="fs-3 text-danger">Performance</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Maximum Take off
+														Weight</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemPerformance.maximumTakeoffWeight}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Maximum Horizontal
+														Speed</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemPerformance.maximumHorizontalSpeed}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Maximum Ascent Speed</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemPerformance.maximumAscentSpeed}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Maximum Descent Speed</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemPerformance.maximumDescentSpeed}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Maximum Wind
+														Resistance</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemPerformance.maximumWindResistance}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Flight Ceiling</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemPerformance.flightCeiling}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Maximum Flight Time</th>
+													<td th:utext="${item.itemPerformance.maximumFlightTime}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Maximum Hover Time</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemPerformance.maximumHoverTime}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Maximum Tilt Angle</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemPerformance.maximumTiltAngle}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Hovering Accuracy</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemPerformance.hoveringAccuracy}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemRemoteControllerOrTransmitter != null}">
+										<p class="fs-3 text-danger">Remote Controller /
+											Transmitter</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Operating Frequency</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemRemoteControllerOrTransmitter.operatingFrequency}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Maximum Operating
+														Distance</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemRemoteControllerOrTransmitter.maximumOperatingDistance}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Transmitter Power</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemRemoteControllerOrTransmitter.transmitterPower}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Connectivity</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemRemoteControllerOrTransmitter.connectivity}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemVideoSpecs != null}">
+										<p class="fs-3 text-danger">Video</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Recording Modes</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemVideoSpecs.recordingModes}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">External Recording
+														Modes</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemVideoSpecs.externalRecordingModes}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Recording Limit</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemVideoSpecs.recordingLimit}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Video Encoding</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemVideoSpecs.videoEncoding}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Audio Recording</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemVideoSpecs.audioRecording}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Audio File Format</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemVideoSpecs.audioFileFormat}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemViewfinderMonitor != null}">
+										<p class="fs-3 text-danger">View Finder Monitor</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">View Finder Type</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemViewfinderMonitor.viewfinderType}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">View Finder Size</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemViewfinderMonitor.viewfinderSize}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">View Finder
+														Resolution</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemViewfinderMonitor.viewfinderResolution}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">View Finder Eye Point</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemViewfinderMonitor.viewfinderEyePoint}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">View Finder Coverage</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemViewfinderMonitor.viewfinderCoverage}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">View Finder
+														Magnification</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemViewfinderMonitor.viewfinderMagnification}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Diopter Adjustment</th>
+													<td
+														th:utext="${item.itemViewfinderMonitor.diopterAdjustment}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Monitor Size</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemViewfinderMonitor.monitorSize}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Monitor Resolution</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemViewfinderMonitor.monitorResolution}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Monitor Type</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemViewfinderMonitor.monitorType}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemVisionSystem != null}">
+										<p class="fs-3 text-danger">Vision System</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Vision System</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemVisionSystem.visionSystem}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Obstacle Sensory
+														Range</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemVisionSystem.obstacleSensoryRange}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Forward Field of View</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemVisionSystem.forwardFieldOfView}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Downward Field of
+														View</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemVisionSystem.downwardFieldOfView}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Backward Field Of
+														View</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemVisionSystem.backwardFieldOfView}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Operating Environment</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemVisionSystem.operatingEnvironment}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemGeneralSpecs != null}">
+										<p class="fs-3 text-danger">General</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Number of Rotors</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemGeneralSpecs.numberOfRotors}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Operating Temperature</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemGeneralSpecs.operatingTemperature}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Overall Dimensions</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemGeneralSpecs.overallDimensions}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div th:if="${item.itemPackagingInfo != null}">
+										<p class="fs-3 text-danger">Packaging Info</p>
+										<table class="table table-striped">
+											<tbody>
+												<tr>
+													<th class="col-sm-4" scope="row">Package Weight</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemPackagingInfo.packageWeight}"></td>
+												</tr>
+												<tr>
+													<th class="col-sm-4" scope="row">Dimensions</th>
+													<td class="col-sm-8"
+														th:utext="${item.itemPackagingInfo.dimensions}"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary"
+					data-bs-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+
+</div>

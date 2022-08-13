@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="index :: common-head" />
+
+<body>
+
+	<!-- NIC image upload with preview style -->
+	<style>
+.imagePreview {
+	width: 100%;
+	height: 180px;
+	background-position: center center;
+	background-size: cover;
+	display: inline-block;
+}
+
+.imgUp {
+	margin-bottom: 15px;
+	width: 200px;
+}
+</style>
+
+
+	<div th:replace="index :: common-notification"></div>
+
+	<header th:replace="index :: common-header" />
+
+	<div class="container-fluid">
+		<div class="row">
+			<nav id="sidebarMenu"
+				class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+				<div class="position-sticky pt-3">
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/}"> <i class="fas fa-home"></i> Main Menu
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/branch}"> <i class="fas fa-store"></i> Branch
+								Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column"
+						sec:authorize="hasAnyAuthority('Admin', 'Manager')">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/employee}"> <i class="fas fa-user-tie"></i>
+								Employee Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link active"
+							aria-current="page" th:href="@{/customer}"> <i
+								class="fas fa-handshake"></i> Customer Management
+						</a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Item</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/category"><i
+								class="fas fa-sitemap"></i> Category Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/brand"><i
+								class="fas fa-copyright"></i> Brand Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/item"><i
+								class="fas fa-camera"></i> Item Management </a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Rent</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/rent"><i
+								class="fas fa-cart-arrow-down"></i> Rent Item </a></li>
+						<li class="nav-item"><a class="nav-link" href="/return"><i
+								class="fas fa-people-carry"></i> Return Item </a></li>
+					</ul>
+
+					<div
+						sec:authorize="hasAnyAuthority('Admin', 'Manager', 'Accountant')">
+						<h6
+							class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+							<span>Report</span>
+						</h6>
+						<ul class="nav flex-column mb-2">
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByRent"><i class="fas fa-chart-line"></i>
+									Profit by Rent Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByItem"><i class="fas fa-chart-line"></i>
+									Profit by Item Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/rentReport"><i class="fas fa-file-alt"></i>
+									Rent Report </a></li>
+						</ul>
+					</div>
+				</div>
+			</nav>
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+				<div
+					class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+					<h2>Customer Management</h2>
+					<div class="btn-toolbar mb-2 mb-md-0">
+						<button type="button" class="btn btn-sm btn-outline-warning"
+							data-bs-toggle="modal" data-bs-target="#cusAddModal">
+							<i class="fas fa-plus-circle"></i> Add Customer
+						</button>
+					</div>
+				</div>
+
+				<!-- Customer detail table -->
+				<div class="table-responsive">
+					<table class="table table-striped table-sm" id="cus-table">
+						<thead>
+							<tr>
+								<th scope="col">#</th>
+								<th scope="col">First Name</th>
+								<th scope="col">Last Name</th>
+								<th scope="col">NIC</th>
+								<th scope="col">Mobile 1</th>
+								<th scope="col">Mobile 2</th>
+								<th scope="col">Address</th>
+								<th scope="col">Billing Address</th>
+								<th scope="col">Operations</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr data-th-each="cus : ${cusList}">
+								<td th:text="${cus.id}"></td>
+								<td th:text="${cus.firstName}"></td>
+								<td th:text="${cus.lastName}"></td>
+								<td th:text="${cus.nic}"></td>
+								<td th:text="${cus.mobile}"></td>
+								<td th:text="${cus.mobile2}"></td>
+								<td th:text="${cus.address}"></td>
+								<td th:text="${cus.billingAddress}"></td>
+								<td>
+									<button type="button"
+										class="btn-edit btn btn-sm btn-outline-warning border-0"
+										data-bs-toggle="modal"
+										th:attr="data-bs-target='#cusEditModal'+${cus.id}">
+										<i class="fas fa-edit"></i>
+									</button> <!-- Edit model need to put inside of the row. otherwise customer details will null -->
+									<div th:replace="customer :: edit-modal" />
+
+									<button type="button"
+										class="btn btn-sm btn-outline-warning border-0"
+										data-bs-toggle="modal"
+										th:attr="data-bs-target='#cusDeleteModal'+${cus.id}">
+										<i class="fas fa-trash-alt"></i>
+									</button> <!-- Delete model need to put inside of the row. otherwise customer details will null -->
+									<div th:replace="customer :: delete-modal" />
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<!-- Customer detail table -->
+
+
+				<!-- Customer Add Modal -->
+				<div class="modal fade" id="cusAddModal" data-bs-backdrop="static"
+					data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="cusAddModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="cusAddModalLabel">Customer Add
+									Form</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<form class="form-floating" th:action="@{/customer/addCustomer}"
+									method="POST" enctype="multipart/form-data">
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.firstName}" id="firstName" name="firstName"
+											placeholder="First Name" pattern="[A-Z][a-z]{2,32}"
+											title="Only letters are accepted. The first letter is capitalized, and minimum 2 letters are required. Ex: Johan"
+											required> <label for="firstName">First Name *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.lastName}" id="lastName" name="lastName"
+											placeholder="Last Name" pattern="[A-Z][a-z]{2,32}"
+											title="Only letters are accepted. The first letter is capitalized, and minimum 2 letters are required. Ex: Johan"
+											required> <label for="lastName">Last Name *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.nic}" id="nic" name="nic" placeholder="NIC"
+											pattern="\d{9}V|\d{9}X|\d{12}"
+											title="NIC number must be 9 digits and ends with 'V' or 'X'. OR 12 digits."
+											required> <label for="nic">NIC No. *</label>
+									</div>
+									<div class="row">
+										<div class="col-sm-2 imgUp">
+											<div class="imagePreview"
+												style="background-image: url(/assert/NoImage.jpg)"></div>
+											<label class="btn btn-warning btn-sm d-grid"> NIC
+												Face Image *<input type="file" accept=".png, .jpg, .jpeg"
+												class="uploadFile img" name="nicFaceImg"
+												style="width: 0px; height: 0px; overflow: hidden;" required>
+											</label>
+										</div>
+
+										<div class="col-sm-2 imgUp">
+											<div class="imagePreview"
+												style="background-image: url(/assert/NoImage.jpg)"></div>
+											<label class="btn btn-warning btn-sm d-grid"> NIC
+												Back Image *<input type="file" accept=".png, .jpg, .jpeg"
+												class="uploadFile img" name="nicBackImg"
+												style="width: 0px; height: 0px; overflow: hidden;" required>
+											</label>
+										</div>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.mobile}" id="mobile" name="mobile"
+											placeholder="Mobile Number" pattern="0\d{9}"
+											title="10 digits are required, and the first digit must be 0."
+											required> <label for="mobile">Mobile Number 1
+											*</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.mobile2}" id="mobile2" name="mobile2"
+											placeholder="Mobile Number 2" pattern="0\d{9}"
+											title="10 digits are required, and the first digit must be 0."
+											required> <label for="mobile2">Mobile Number
+											2 *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.address}" id="address" name="address"
+											placeholder="Address" required> <label for="address">Address
+											*</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.billingAddress}" id="billingAddress"
+											name="billingAddress" placeholder="Billing Address" required>
+										<label for="billingAddress">Billing Address *</label>
+									</div>
+									<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+										<button class="btn btn-secondary" type="reset">Clear</button>
+										<button class="btn btn-warning" type="submit">Add</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Customer Add Modal End-->
+
+
+				<!-- Customer Edit Modal -->
+				<div th:fragment="edit-modal" class="modal fade"
+					th:id="'cusEditModal'+${cus.id}" data-bs-backdrop="static"
+					data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="cusEditModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="cusEditModalLabel">Customer
+									Edit Form</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<form class="form-floating"
+									th:action="@{/customer/editCustomer}" method="POST"
+									th:object="${cusList}" enctype="multipart/form-data">
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.id}" id="id" name="id"
+											placeholder="Customer ID" required readonly> <label
+											for="id">Customer ID *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.firstName}" id="firstName" name="firstName"
+											placeholder="First Name" pattern="[A-Z][a-z]{2,32}"
+											title="Only letters are accepted. The first letter is capitalized, and minimum 2 letters are required. Ex: Johan"
+											required> <label for="firstName">First Name *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.lastName}" id="lastName" name="lastName"
+											placeholder="Last Name" pattern="[A-Z][a-z]{2,32}"
+											title="Only letters are accepted. The first letter is capitalized, and minimum 2 letters are required. Ex: Johan"
+											required> <label for="lastName">Last Name *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.nic}" id="nic" name="nic" placeholder="NIC"
+											pattern="\d{9}V|\d{9}X|\d{12}"
+											title="NIC number must be 9 digits and ends with 'V' or 'X'. OR 12 digits."
+											required> <label for="nic">NIC *</label>
+									</div>
+									<div class="row">
+										<div class="col-sm-2 imgUp">
+											<div class="imagePreview"
+												th:style="'background-image: url(' + ${cus.nicFaceImg} + ');'"></div>
+											<label class="btn btn-warning btn-sm d-grid"> NIC
+												Face Image *<input type="file" accept=".png, .jpg, .jpeg"
+												class="uploadFile img" th:value="${cus.nicFaceImg}"
+												name="nicFaceImg"
+												style="width: 0px; height: 0px; overflow: hidden;">
+											</label>
+										</div>
+
+										<div class="col-sm-2 imgUp">
+											<div class="imagePreview"
+												th:style="'background-image: url(' + ${cus.nicBackImg} + ');'"></div>
+											<label class="btn btn-warning btn-sm d-grid"> NIC
+												Back Image *<input type="file" accept=".png, .jpg, .jpeg"
+												class="uploadFile img" th:value="${cus.nicBackImg}"
+												name="nicBackImg"
+												style="width: 0px; height: 0px; overflow: hidden;">
+											</label>
+										</div>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.mobile}" id="mobile" name="mobile"
+											placeholder="Mobile Number" pattern="0\d{9}"
+											title="10 digits are required, and the first digit must be 0."
+											required> <label for="mobile">Mobile Number 1
+											*</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.mobile2}" id="mobile2" name="mobile2"
+											placeholder="Mobile Number 2" pattern="0\d{9}"
+											title="10 digits are required, and the first digit must be 0."
+											required> <label for="mobile2">Mobile Number
+											2 *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.address}" id="address" name="address"
+											placeholder="Address" required> <label for="address">Address
+											*</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${cus.billingAddress}" id="billingAddress"
+											name="billingAddress" placeholder="Billing Address" required>
+										<label for="billingAddress">Billing Address *</label>
+									</div>
+									<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+										<button class="btn btn-secondary" type="reset">Clear</button>
+										<button class="btn btn-warning" type="submit">Edit</button>
+									</div>
+
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Customer Edit Modal End-->
+
+
+				<!-- Customer Delete Modal -->
+				<div th:fragment="delete-modal" class="modal fade"
+					th:id="'cusDeleteModal'+${cus.id}" data-bs-backdrop="static"
+					data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="cusDeleteModalLabel" aria-hidden="true">
+					<div class="modal-dialog  modal-dialog-centered modal-sm">
+						<div class="modal-content">
+							<div class="modal-header bg-danger">
+								<Strong class="modal-title" id="cusDeleteModalLabel"> <i
+									class="fas fa-trash-alt"></i> Delete Customer
+								</Strong>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<p>
+									Are you sure you want to delete the customer : <b><span
+										th:text="${cus.firstName +' '+ cus.lastName}"></span></b>
+								</p>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary"
+									data-bs-dismiss="modal">Cancel</button>
+								<a type="button" class="btn btn-warning"
+									th:href="@{/customer/deleteCustomer(id=${cus.id})}">Delete</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Customer Delete Modal End-->
+
+			</main>
+		</div>
+	</div>
+
+	<div th:replace="index :: common-scripts" />
+
+	<script>
+		$(document).ready(function() {
+			var table = $('#cus-table').DataTable();
+		});
+	</script>
+
+	<!-- NIC image upload preview script -->
+	<script type="text/javascript">
+		$(function() {
+			$(document).on(
+					"change",
+					".uploadFile",
+					function() {
+						var uploadFile = $(this);
+						var files = !!this.files ? this.files : [];
+						if (!files.length || !window.FileReader)
+							return; // no file selected, or no FileReader support
+
+						if (/^image/.test(files[0].type)) { // only image file
+							var reader = new FileReader(); // instance of the FileReader
+							reader.readAsDataURL(files[0]); // read the local file
+
+							reader.onloadend = function() { // set image data as background of div
+								uploadFile.closest(".imgUp").find(
+										'.imagePreview').css(
+										"background-image",
+										"url(" + this.result + ")");
+							}
+						}
+
+					});
+		});
+	</script>
+
+</body>

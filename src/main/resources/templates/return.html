@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="index :: common-head" />
+
+<body>
+
+	<div th:replace="index :: common-notification"></div>
+
+	<header th:replace="index :: common-header" />
+
+	<div class="container-fluid">
+		<div class="row">
+			<nav id="sidebarMenu"
+				class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+				<div class="position-sticky pt-3">
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/}"> <i class="fas fa-home"></i> Main Menu
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/branch}"> <i class="fas fa-store"></i> Branch
+								Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column"
+						sec:authorize="hasAnyAuthority('Admin', 'Manager')">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/employee}"> <i class="fas fa-user-tie"></i>
+								Employee Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/customer}"> <i class="fas fa-handshake"></i>
+								Customer Management
+						</a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Item</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/category"><i
+								class="fas fa-sitemap"></i> Category Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/brand"><i
+								class="fas fa-copyright"></i> Brand Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/item"><i
+								class="fas fa-camera"></i> Item Management </a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Rent</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/rent"><i
+								class="fas fa-cart-arrow-down"></i> Rent Item </a></li>
+						<li class="nav-item"><a class="nav-link active"
+							href="/return"><i class="fas fa-people-carry"></i> Return
+								Item </a></li>
+					</ul>
+
+					<div
+						sec:authorize="hasAnyAuthority('Admin', 'Manager', 'Accountant')">
+						<h6
+							class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+							<span>Report</span>
+						</h6>
+						<ul class="nav flex-column mb-2">
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByRent"><i class="fas fa-chart-line"></i>
+									Profit by Rent Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByItem"><i class="fas fa-chart-line"></i>
+									Profit by Item Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/rentReport"><i class="fas fa-file-alt"></i>
+									Rent Report </a></li>
+						</ul>
+					</div>
+
+				</div>
+			</nav>
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+				<div
+					class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+					<h2>Item Return Management</h2>
+				</div>
+
+				<div class="bg-light p-3 mb-3">
+					<p>Search Rent</p>
+					<div class="row g-3">
+						<div class="col-md">
+							<div class="form-floating">
+								<input type="text"
+									class="form-control border-top-0 border-start-0 border-end-0 bg-light"
+									id="cusNameSearch" name="cusNameSearch" list="cusNameList"
+									placeholder="By Name" onkeyup="getCusNames()"> <label
+									for="cusNameSearch">By Name</label>
+							</div>
+						</div>
+						<div class="col-md">
+							<div class="form-floating">
+								<input type="text"
+									class="form-control border-top-0 border-start-0 border-end-0 bg-light"
+									id="cusPhoneSearch" name="cusPhoneSearch" list="cusPhoneList"
+									placeholder="By Phone Number" onkeyup="getCusPhone()"
+									onchange="getRentByPhone()"> <label
+									for="cusPhoneSearch">By Phone Number</label>
+							</div>
+						</div>
+						<div class="col-md">
+							<div class="form-floating">
+								<input type="text"
+									class="form-control border-top-0 border-start-0 border-end-0 bg-light"
+									id="cusNicSearch" name="cusNicSearch" list="cusNicList"
+									placeholder="By NIC" onkeyup="getCusNic()"
+									onchange="getRentByNic()"> <label for="cusNicSearch">By
+									NIC</label>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<p class="fs-3 text-danger" th:if="${not #lists.isEmpty(rents)}">Pending
+					Rents:</p>
+				<div class="accordion" id="accordionExample">
+					<div class="accordion-item" th:each="rent : ${rents}">
+						<h2 class="accordion-header" id="headingOne">
+							<button class="accordion-button" type="button"
+								data-bs-toggle="collapse"
+								th:attr="data-bs-target='#accordion_'+${rent.id}"
+								aria-expanded="true" aria-controls="collapseOne">
+								<span class="fw-bolder text-danger"
+									th:text="${rent.startDate + ' To ' + rent.endDate}"></span>
+							</button>
+						</h2>
+						<div th:id="'accordion_'+${rent.id}"
+							class="accordion-collapse collapse mb-5"
+							aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+							<div class="accordion-body">
+
+								<div class="card bg-light border-0 mt-3"
+									data-th-each="cart : ${rent.rentCartItemList}">
+									<div class="row mt-3 mb-3">
+										<div class="col-2">
+											<img th:src="${cart.item.itemImg}" alt="..."
+												class="mx-auto d-block rounded-circle" style="width: 100px;">
+										</div>
+										<div class="col-3">
+											<p class="fw-bolder"
+												th:text="${cart.item.brand.brandName + ' ' + cart.item.itemName}"></p>
+											<p class="text-muted" th:text="${cart?.item?.itemCode}"></p>
+										</div>
+										<div class="col-7">
+											<div class="row">
+												<div class="col-3">
+													<div class="row">
+														<div class="col-6">
+															<p class="text-muted">Qty:</p>
+															<p class="fw-bolder" th:text="${cart.qty}"></p>
+														</div>
+														<div class="col-6">
+															<p class="text-muted">Days:</p>
+															<p class="fw-bolder" th:text="${cart.days}"></p>
+														</div>
+													</div>
+												</div>
+												<div class="col-3 text-end">
+													<p class="text-muted">Rent Price</p>
+													<small class="text-muted">Q: <span
+														th:text="${cart.qty}"></span> * D: <span
+														th:text="${cart.days}"></span> * Rs.<span
+														th:text="${cart.days > 4 ? cart.item.rentPrice5Days : (cart.days > 2 ? cart.item.rentPrice3To4Days : cart.item.rentPrice1To2Days)}"></span>
+													</small>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(cart?.subRentTotal, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+												<div class="col-3 text-end">
+													<p class="text-muted">Deposit</p>
+													<small class="text-muted">Q: <span
+														th:text="${cart.qty}"></span> * D: <span
+														th:text="${cart.days}"></span> * Rs.<span
+														th:text="${cart.days > 4 ? cart.item.deposit5Days : (cart.days > 2 ? cart.item.deposit3To4Days : cart.item.deposit1To2Days)}"></span>
+													</small>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(cart?.subDepositTotal, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+												<div class="col-3 text-end pe-5">
+													<p class="text-muted">Sub Total</p>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(cart?.subTotal, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="card bg-light border-0 mt-3 mb-3">
+									<div class="row mt-3 mb-3">
+										<div class="col-5"></div>
+										<div class="col-7">
+											<div class="row">
+												<div class="col-3 align-self-end text-end">
+													<p class="fw-bolder">Grand Total</p>
+												</div>
+												<div class="col-3 text-end">
+													<p class="text-muted">Rent Total</p>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(rent?.grandRentTotal, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+												<div class="col-3 text-end">
+													<p class="text-muted">Deposit Total</p>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(rent?.grandDepositTotal, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+												<div class="col-3 text-end pe-5">
+													<p class="text-muted">Total</p>
+													<p class="fw-bolder"
+														th:text="${#numbers.formatDecimal(rent?.grandTotal, 0,'COMMA',2,'POINT')}"></p>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<form class="form-floating"
+									th:action="@{/return/completeReturn}" method="POST">
+									<input type="text" id="rentId" name="rentId"
+										th:value="${rent.id}" hidden>
+									<div class="row mb-3">
+										<div class="col-3">
+											<label for="startDate"
+												class="col-form-label col-form-label-sm">Returned
+												Date:</label> <input type="date"
+												class="form-control form-control-sm"
+												th:id="'returnedDate_'+${rent.id}" name="returnedDate"
+												th:value="${rent?.endDate}" th:min="${rent?.endDate}"
+												max="2050-12-31" required
+												th:onchange="'getLateCharge('+${rent.id}+')'" />
+										</div>
+										<div class="col-3">
+											<label for="lateChargers"
+												class="col-form-label col-form-label-sm">Late
+												Charges</label> <input type="text"
+												class="form-control form-control-sm"
+												th:id="'lateChargers_'+${rent.id}" name="lateChargers"
+												placeholder="0.00" readonly>
+										</div>
+										<div class="col-3">
+											<label for="damageFine"
+												class="col-form-label col-form-label-sm">Damage Fine</label>
+											<input type="text" class="form-control form-control-sm"
+												id="damageFine" name="damageFine" placeholder="0.00">
+										</div>
+										<div class="col-3">
+											<div class="row mt-4">
+												<div class="form-check col-6">
+													<input class="form-check-input" type="checkbox"
+														value="true" id="itemReceived" name="itemReceived"
+														required> <label class="form-check-label"
+														for="itemReceived"> All Items Received </label>
+												</div>
+												<div class="form-check col-6">
+													<input class="form-check-input" type="checkbox"
+														value="true" id="depositReturned" name="depositReturned"
+														required> <label class="form-check-label"
+														for="depositReturned"> Deposit Returned </label>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+										<button class="btn btn-warning" type="submit">Complete
+											Return Job</button>
+									</div>
+								</form>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</main>
+		</div>
+	</div>
+
+	<!-- Customer Name List -->
+	<datalist id="cusNameList">
+		<option value="">Type a the Customer Name</option>
+	</datalist>
+
+	<!-- Customer Mobile List -->
+	<datalist id="cusPhoneList">
+		<option value="">Type a the Customer Mobile Number</option>
+	</datalist>
+
+	<!-- Customer NIC List -->
+	<datalist id="cusNicList">
+		<option value="">Type a the Customer NIC</option>
+	</datalist>
+
+	<div th:replace="index :: common-scripts" />
+
+	<!-- Ajax call for get Customer name list -->
+	<script>
+		function getCusNames() {
+			var input = $("#cusNameSearch").val();
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					$("#cusNameList").empty();
+					var select = document.getElementById("cusNameList");
+					var data = JSON.parse(this.responseText);
+					for (var i = 0; i < data.length; i++) {
+						var opt = data[i];
+						var el = document.createElement("option");
+						el.value = opt;
+						select.appendChild(el);
+					}
+
+				}
+			};
+			xhttp.open("GET", "return/ajaxCustomerName?q=" + input, true);
+			xhttp.send();
+		}
+	</script>
+
+	<!-- Ajax call for get Customer mobile list -->
+	<script>
+		function getCusPhone() {
+			var input = $("#cusPhoneSearch").val();
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					$("#cusPhoneList").empty();
+					var select = document.getElementById("cusPhoneList");
+					var data = JSON.parse(this.responseText);
+					for (var i = 0; i < data.length; i++) {
+						var opt = data[i];
+						var el = document.createElement("option");
+						el.value = opt;
+						select.appendChild(el);
+					}
+
+				}
+			};
+			xhttp.open("GET", "return/ajaxCustomerPhone?q=" + input, true);
+			xhttp.send();
+		}
+	</script>
+
+	<!-- Ajax call for get Customer NIC list -->
+	<script>
+		function getCusNic() {
+			var input = $("#cusNicSearch").val();
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					$("#cusNicList").empty();
+					var select = document.getElementById("cusNicList");
+					var data = JSON.parse(this.responseText);
+					for (var i = 0; i < data.length; i++) {
+						var opt = data[i];
+						var el = document.createElement("option");
+						el.value = opt;
+						select.appendChild(el);
+					}
+
+				}
+			};
+			xhttp.open("GET", "return/ajaxCustomerNic?q=" + input, true);
+			xhttp.send();
+		}
+	</script>
+
+	<script>
+		$(function() {
+			// bind change event to select
+			$('#cusNameSearch')
+					.on(
+							'change',
+							function() {
+								var input = $("#cusNameSearch").val(); // get selected value
+								if (input) { // require a URL
+									window.location = '/return/getRentsByCusName?cusName='
+											+ input; // redirect
+								}
+								return false;
+							});
+		});
+	</script>
+
+	<script>
+		$(function() {
+			// bind change event to select
+			$('#cusPhoneSearch')
+					.on(
+							'change',
+							function() {
+								var input = $("#cusPhoneSearch").val(); // get selected value
+								if (input) { // require a URL
+									window.location = '/return/getRentsByCusPhone?cusPhone='
+											+ input; // redirect
+								}
+								return false;
+							});
+		});
+	</script>
+
+	<script>
+		$(function() {
+			// bind change event to select
+			$('#cusNicSearch')
+					.on(
+							'change',
+							function() {
+								var input = $("#cusNicSearch").val(); // get selected value
+								if (input) { // require a URL
+									window.location = '/return/getRentsByCusNic?cusNic='
+											+ input; // redirect
+								}
+								return false;
+							});
+		});
+	</script>
+
+	<script type="text/javascript">
+		function getLateCharge(rentId) {
+			var date = $("#returnedDate_" + rentId).val();
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					var data = JSON.parse(this.responseText);
+					document.getElementById("lateChargers_" + rentId).value = data;
+				}
+			};
+			xhttp.open("GET", "/return/ajaxGetLateCharge?rentId=" + rentId
+					+ "&date=" + date, true);
+			xhttp.send();
+		}
+	</script>
+</body>

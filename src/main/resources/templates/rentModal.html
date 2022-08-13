@@ -1,0 +1,115 @@
+<div th:fragment="rent-modal" class="modal fade"
+	th:id="'itemRentModal'+${item.id}" data-bs-backdrop="static"
+	data-bs-keyboard="false" tabindex="-1"
+	aria-labelledby="itemRentModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="itemRentModalLabel">Rent This</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"
+					aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<h4>
+					<span class="fw-bolder"
+						th:text="${item.brand.brandName + ' ' + item.itemName}"></span>
+				</h4>
+				<h6 class="text-muted" th:text="${item.itemCode}"></h6>
+				<div class="row align-items-start mt-3 mb-3 ms-3 me-3">
+					<div class="col-5 align-self-center">
+						<img th:src="${item.itemImg}" alt="..." class="mx-auto d-block"
+							style="width: 200px;">
+					</div>
+					<div class="col-7">
+						<div class="ms-3">
+							<h6 th:if="${item.available > 0}" class="text-success mt-3">
+								<i class="fas fa-check"></i> <span th:text="${item.available}"></span>
+								In Stock
+							</h6>
+							<h6 th:if="${item.available < 1}" class="text-danger mt-3">
+								<i class="fas fa-times"></i> Out of Stock
+							</h6>
+							<table class="w-100 mb-3">
+								<thead>
+									<tr>
+										<th scope="col"></th>
+										<th scope="col">Price for a day</th>
+										<th scope="col">Deposit for a day</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>1 - 2 Days:</td>
+										<td>
+											<h6 class="text-danger">
+												Rs. <span
+													th:text="${#numbers.formatDecimal(item.rentPrice1To2Days, 0,'COMMA',2,'POINT')}"></span>
+											</h6>
+										</td>
+										<td>
+											<h6 class="text-danger">
+												Rs. <span
+													th:text="${#numbers.formatDecimal(item.deposit1To2Days, 0,'COMMA',2,'POINT')}"></span>
+											</h6>
+										</td>
+									</tr>
+									<tr>
+										<td>3 - 4 Days:</td>
+										<td>
+											<h6 class="text-danger">
+												Rs. <span
+													th:text="${#numbers.formatDecimal(item.rentPrice3To4Days, 0,'COMMA',2,'POINT')}"></span>
+											</h6>
+										</td>
+										<td>
+											<h6 class="text-danger">
+												Rs. <span
+													th:text="${#numbers.formatDecimal(item.deposit3To4Days, 0,'COMMA',2,'POINT')}"></span>
+											</h6>
+										</td>
+									</tr>
+									<tr>
+										<td>More than 4 Days:</td>
+										<td>
+											<h6 class="text-danger">
+												Rs. <span
+													th:text="${#numbers.formatDecimal(item.rentPrice5Days, 0,'COMMA',2,'POINT')}"></span>
+											</h6>
+										</td>
+										<td>
+											<h6 class="text-danger">
+												Rs. <span
+													th:text="${#numbers.formatDecimal(item.deposit5Days, 0,'COMMA',2,'POINT')}"></span>
+											</h6>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+							<form class="form-floating" th:action="@{/rent/addItemToCart}"
+								method="POST">
+								<div class="row">
+									<div class="col-6">
+										<div class="form-floating">
+											<input id="item" name="item" th:value="${item.id}" hidden>
+											<input th:type="number"
+												class="form-control border-top-0 border-start-0 border-end-0"
+												id="qty" name="qty" th:max="${item.available}" th:min="1"
+												placeholder="Quantity" required> <label for="qty">Quantity
+												*</label>
+										</div>
+									</div>
+									<div class="col-6">
+										<button th:classappend="${item.available < 1} ? disabled"
+											type="submit" class="btn btn-warning mt-3">Add to
+											Cart</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

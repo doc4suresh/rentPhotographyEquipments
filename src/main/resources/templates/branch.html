@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head th:replace="index :: common-head" />
+
+<body>
+
+	<div th:replace="index :: common-notification"></div>
+
+	<header th:replace="index :: common-header" />
+
+	<div class="container-fluid">
+		<div class="row">
+			<nav id="sidebarMenu"
+				class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+				<div class="position-sticky pt-3">
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/}"> <i class="fas fa-home"></i> Main Menu
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link active"
+							aria-current="page" th:href="@{/branch}"> <i
+								class="fas fa-store"></i> Branch Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column"
+						sec:authorize="hasAnyAuthority('Admin', 'Manager')">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/employee}"> <i class="fas fa-user-tie"></i>
+								Employee Management
+						</a></li>
+					</ul>
+
+					<ul class="nav flex-column">
+						<li class="nav-item"><a class="nav-link" aria-current="page"
+							th:href="@{/customer}"> <i class="fas fa-handshake"></i>
+								Customer Management
+						</a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Item</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/category"><i
+								class="fas fa-sitemap"></i> Category Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/brand"><i
+								class="fas fa-copyright"></i> Brand Management </a></li>
+						<li class="nav-item"><a class="nav-link" href="/item"><i
+								class="fas fa-camera"></i> Item Management </a></li>
+					</ul>
+
+					<h6
+						class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+						<span>Rent</span>
+					</h6>
+					<ul class="nav flex-column mb-2">
+						<li class="nav-item"><a class="nav-link" href="/rent"><i
+								class="fas fa-cart-arrow-down"></i> Rent Item </a></li>
+						<li class="nav-item"><a class="nav-link" href="/return"><i
+								class="fas fa-people-carry"></i> Return Item </a></li>
+					</ul>
+
+					<div
+						sec:authorize="hasAnyAuthority('Admin', 'Manager', 'Accountant')">
+						<h6
+							class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+							<span>Report</span>
+						</h6>
+						<ul class="nav flex-column mb-2">
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByRent"><i class="fas fa-chart-line"></i>
+									Profit by Rent Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/profitByItem"><i class="fas fa-chart-line"></i>
+									Profit by Item Report </a></li>
+							<li class="nav-item"><a class="nav-link"
+								href="/report/rentReport"><i class="fas fa-file-alt"></i>
+									Rent Report </a></li>
+						</ul>
+					</div>
+
+				</div>
+			</nav>
+
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+				<div
+					class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+					<h2>Branch Management</h2>
+					<button sec:authorize="hasAnyAuthority('Admin', 'Manager')"
+						type="button" class="btn btn-sm btn-outline-warning"
+						data-bs-toggle="modal" data-bs-target="#branchAddModal">
+						<i class="fas fa-plus-circle"></i> Add Branch
+					</button>
+
+					<!-- Dummy button for permission deny users -->
+					<span
+						sec:authorize="hasAnyAuthority('Accountant', 'Sales Person', 'Cashier')"
+						class="d-inline-block" tabindex="0" data-bs-toggle="tooltip"
+						title="You don't have permission">
+						<button type="button" class="btn btn-sm btn-outline-secondary"
+							disabled>
+							<i class="fas fa-plus-circle"></i> Add Branch
+						</button>
+					</span>
+				</div>
+
+				<!-- Branch detail table -->
+				<!-- <div class="table-responsive"> -->
+				<table class="table table-striped table-sm" id="branch-table">
+					<thead>
+						<tr>
+							<th scope="col">#</th>
+							<th scope="col">Branch Name</th>
+							<th scope="col">Address</th>
+							<th scope="col">Phone No.</th>
+							<th scope="col">Branch Manager</th>
+							<th scope="col">Operations</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr data-th-each="branch : ${branchList}">
+							<td th:text="${branch.id}"></td>
+							<td th:text="${branch.name}"></td>
+							<td th:text="${branch.address}"></td>
+							<td th:text="${branch.phoneNo}"></td>
+							<td
+								th:text="${branch?.manager?.firstName + ' ' + branch?.manager?.lastName}"></td>
+							<td>
+								<button sec:authorize="hasAnyAuthority('Admin', 'Manager')"
+									type="button"
+									class="btn-edit btn btn-sm btn-outline-warning border-0"
+									data-bs-toggle="modal"
+									th:attr="data-bs-target='#branchEditModal'+${branch.id}">
+									<i class="fas fa-edit"></i>
+								</button> <!-- Edit model need to put inside of the row. otherwise branch details will null -->
+								<div th:replace="branch :: edit-modal" />
+
+								<button sec:authorize="hasAnyAuthority('Admin', 'Manager')"
+									type="button" class="btn btn-sm btn-outline-warning border-0"
+									data-bs-toggle="modal"
+									th:attr="data-bs-target='#branchDeleteModal'+${branch.id}">
+									<i class="fas fa-trash-alt"></i>
+								</button> <!-- Delete model need to put inside of the row. otherwise branch details will null -->
+								<div th:replace="branch :: delete-modal" /> <!-- Dummy button for permission deny users -->
+								<span
+								sec:authorize="hasAnyAuthority('Accountant', 'Sales Person', 'Cashier')"
+								class="d-inline-block" tabindex="0" data-bs-toggle="tooltip"
+								title="You don't have permission">
+									<button type="button"
+										class="btn-edit btn btn-sm btn-outline-secondary border-0"
+										disabled>
+										<i class="fas fa-edit"></i>
+									</button>
+									<button type="button"
+										class="btn-edit btn btn-sm btn-outline-secondary border-0"
+										disabled>
+										<i class="fas fa-trash-alt"></i>
+									</button>
+							</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<!-- </div> -->
+				<!-- Branch detail table -->
+
+
+				<!-- Branch Add Modal -->
+				<div class="modal fade" id="branchAddModal"
+					data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="branchAddModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="branchAddModalLabel">Branch Add
+									Form</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<form class="form-floating" th:action="@{/branch/addBranch}"
+									method="POST">
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${branch.name}" id="name" name="name"
+											placeholder="Branch Name" required> <label for="name">Branch
+											Name *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${branch.address}" id="address" name="address"
+											placeholder="Address" required> <label for="address">Address
+											*</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${branch.phoneNo}" id="phoneNo" name="phoneNo"
+											placeholder="Phone Number" pattern="0\d{9}"
+											title="10 digits are required, and the first digit must be 0."
+											required> <label for="phoneNo">Phone Number *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${manager}" id="manager" name="manager"
+											list="managerList" placeholder="Branch Manager"> <label
+											for="manager">Branch Manager</label>
+									</div>
+									<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+										<button class="btn btn-secondary" type="reset">Clear</button>
+										<button class="btn btn-warning" type="submit">Add</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Branch Add Modal End-->
+
+
+				<!-- Branch Edit Modal -->
+				<div th:fragment="edit-modal" class="modal fade"
+					th:id="'branchEditModal'+${branch.id}" data-bs-backdrop="static"
+					data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="branchEditModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="branchEditModalLabel">Branch
+									Edit Form</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<form class="form-floating" th:action="@{/branch/editBranch}"
+									method="POST" th:object="${branchList}">
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${branch.id}" id="id" name="id"
+											placeholder="Branch ID" required readonly> <label
+											for="id">Branch ID *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${branch.name}" id="name" name="name"
+											placeholder="Branch Name" required> <label for="name">Branch
+											Name *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${branch.address}" id="address" name="address"
+											placeholder="Address" required> <label for="address">Address
+											*</label>
+									</div>
+									<div class="form-floating mb-3">
+										<input type="text"
+											class="form-control border-top-0 border-start-0 border-end-0"
+											th:value="${branch.phoneNo}" id="phoneNo" name="phoneNo"
+											placeholder="Phone Number" pattern="0\d{9}"
+											title="10 digits are required, and the first digit must be 0."
+											required> <label for="phoneNo">Phone Number *</label>
+									</div>
+									<div class="form-floating mb-3">
+										<select
+											class="form-select border-top-0 border-start-0 border-end-0"
+											id="manager" name="manager" aria-label="Branch Manager">
+											<option value="">-- Select a Manager --</option>
+											<option th:each="man : ${managers}"
+												th:value="${man.firstName + ' ' + man.lastName}"
+												th:text="${man.firstName + ' ' + man.lastName}"
+												th:selected="${branch.manager != null && branch.manager.id == man.id}">
+										</select> <label for="manager">Branch Manager</label>
+									</div>
+									<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+										<button class="btn btn-secondary" type="reset">Clear</button>
+										<button class="btn btn-warning" type="submit">Edit</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Branch Edit Modal End-->
+
+
+				<!-- Branch Delete Modal -->
+				<div th:fragment="delete-modal" class="modal fade"
+					th:id="'branchDeleteModal'+${branch.id}" data-bs-backdrop="static"
+					data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="branchDeleteModalLabel" aria-hidden="true">
+					<div class="modal-dialog  modal-dialog-centered modal-sm">
+						<div class="modal-content">
+							<div class="modal-header bg-danger">
+								<Strong class="modal-title" id="branchDeleteModalLabel">
+									<i class="fas fa-trash-alt"></i> Delete Branch
+								</Strong>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<p>
+									Are you sure you want to delete the branch : <b><span
+										th:text="${branch.name}"></span></b>
+								</p>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary"
+									data-bs-dismiss="modal">Cancel</button>
+								<a type="button" class="btn btn-warning"
+									th:href="@{/branch/deleteBranch(id=${branch.id})}">Delete</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Branch Delete Modal End-->
+
+				<!-- Branch List -->
+				<datalist id="managerList">
+					<option th:each="manager: ${managers}"
+						th:value="${manager.firstName + ' ' + manager.lastName}">
+				</datalist>
+
+			</main>
+		</div>
+	</div>
+
+	<div th:replace="index :: common-scripts" />
+
+	<script>
+		$(document).ready(function() {
+			var table = $('#branch-table').DataTable();
+		});
+	</script>
+</body>
